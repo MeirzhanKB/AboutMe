@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meirzhan — Developer</title>
+  <meta name="description" content="Мейржан — разработчик: AI-отделы продаж, боты, сайты.">
+  <meta name="theme-color" content="#14162B">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,700&family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,300..1000&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=7">
+</head>
+<body class="is-loading">
+
+  <!-- Загрузка -->
+  <div class="loader" id="loader">
+    <span class="sig sig-loader"></span>
+    <div class="loader-bar">
+      <span class="loader-count" id="loaderCount">0</span>
+      <span class="eyebrow" id="loaderName"></span>
+    </div>
+  </div>
+
+  <!-- Шапка -->
+  <header class="header" id="header">
+    <a href="#top" class="wordmark" aria-label="Наверх">
+      <span class="wm-1" id="wm1"></span>
+      <span class="wm-2" id="wm2"></span>
+    </a>
+    <a href="#top" class="mark" aria-hidden="true" tabindex="-1"><span class="sig sig-mark in"></span></a>
+    <div class="header-right">
+      <div class="lang" role="group" aria-label="Language">
+        <button data-lang="ru">RU</button><button data-lang="en">EN</button><button data-lang="kz">KZ</button>
+      </div>
+      <a href="#" class="btn js-mail"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v8H2zM2 4l6 5 6-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span class="roll"><span data-ui="cta"></span><span data-ui="cta"></span></span></a>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu"><i></i><i></i></button>
+    </div>
+  </header>
+
+  <!-- Меню -->
+  <div class="menu" id="menu">
+    <div class="menu-col">
+      <span class="eyebrow" data-ui="pages"></span>
+      <nav class="menu-links" id="menuLinks"></nav>
+    </div>
+    <div class="menu-col menu-side">
+      <span class="eyebrow" data-ui="follow"></span>
+      <div class="menu-social" id="menuSocial"></div>
+      <div class="lang lang-big" role="group" aria-label="Language">
+        <button data-lang="ru">RU</button><button data-lang="en">EN</button><button data-lang="kz">KZ</button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- 1+2. Hero → shrinks into a card over the marquee, signature is drawn by scroll -->
+    <section class="intro" id="top" data-theme="light">
+      <div class="intro-pin">
+        <span class="eyebrow mq-cap" id="mqCap"></span>
+        <div class="mq-rows">
+          <div class="mq-row mq-1"><div class="mq-track" id="mq1"></div></div>
+          <div class="mq-row mq-2"><div class="mq-track rev" id="mq2"></div></div>
+        </div>
+        <div class="hero-card" id="heroCard">
+          <canvas class="topo-canvas" id="topoCanvas"></canvas>
+          <div class="hero-glow"></div>
+          <div class="hero-portrait" id="heroPortrait">
+            <img class="hp base" id="hpBase" alt="">
+            <img class="hp alt" id="hpAlt" alt="">
+          </div>
+        </div>
+        <span class="sig sig-hero" id="sigHero"></span>
+      <div class="widget" id="widget">
+        <span class="eyebrow" id="wEyebrow"></span>
+        <div class="widget-row">
+          <span class="widget-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 4"/><path d="M13 21l5 5 10-12" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></span>
+          <div><b id="wTitle"></b><small id="wSub"></small></div>
+        </div>
+        <span class="widget-status"><i></i><span id="wStatus"></span></span>
+      </div>
+      <div class="scroll-cue"><span class="eyebrow" data-ui="scroll"></span><i></i></div>
+      </div>
+    </section>
+
+    <!-- 3. Manifesto -->
+    <section class="manifesto" id="about" data-theme="dark">
+      <span class="eyebrow" id="mfEyebrow" data-reveal></span>
+      <h2 class="mf-text mixed" id="mfText"></h2>
+    </section>
+
+    <!-- 4. Story — horizontal track (background morphs dark → cream) -->
+    <section class="track" id="story" data-theme="light">
+      <div class="track-pin">
+        <div class="track-inner" id="trackInner"></div>
+      </div>
+    </section>
+
+    <!-- 5. Work / Life -->
+    <section class="paths" id="paths" data-theme="light">
+      <div class="paths-visual"><img id="pathsImg" alt=""></div>
+      <div class="paths-grid" id="pathsGrid"></div>
+    </section>
+
+    <!-- 6. Full-bleed photo -->
+    <section class="break" id="break" data-theme="dark">
+      <div class="break-pin">
+        <div class="break-frame" id="breakFrame"><img id="breakImg" alt=""></div>
+        <h3 class="break-cap mixed" id="breakCap"></h3>
+      </div>
+    </section>
+
+    <!-- 7. Projects -->
+    <section class="projects" id="projects" data-theme="dark">
+      <h2 class="sec-title mixed center" id="projTitle" data-wipe></h2>
+      <div class="pgrid" id="pgrid"></div>
+    </section>
+
+    <!-- 8. Featured -->
+    <section class="featured topo curve" id="featured" data-theme="light">
+      <div class="ft-text">
+        <span class="eyebrow ft-eyebrow" id="ftEyebrow" data-reveal></span>
+        <h2 class="ft-title mixed" id="ftTitle" data-wipe></h2>
+        <p class="ft-p" id="ftText" data-reveal></p>
+        <a href="#" class="btn js-mail" data-reveal><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13L13 3M6 3h7v7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span class="roll"><span data-ui="discuss"></span><span data-ui="discuss"></span></span></a>
+      </div>
+      <div class="ft-collage" id="ftCollage"></div>
+    </section>
+
+    <!-- 9. Stack -->
+    <section class="stack-s" id="stack" data-theme="light">
+      <div class="stack-head">
+        <h2 class="sec-title mixed" id="stTitle" data-wipe></h2>
+        <p class="stack-p" id="stText" data-reveal></p>
+      </div>
+      <span class="script stack-script" id="stScript" data-draw></span>
+      <div class="stack-row"><div class="mq-track slow" id="stTrack"></div></div>
+    </section>
+
+    <!-- 10. Socials -->
+    <section class="socials" id="socials" data-theme="light">
+      <span class="soc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.4" cy="6.6" r="1.2" fill="currentColor"/></svg></span>
+      <h2 class="sec-title mixed center" id="socTitle" data-wipe></h2>
+      <div class="fan" id="fan"></div>
+      <a class="btn btn-dark" id="instaBtn" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13L13 3M6 3h7v7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span class="roll"><span id="instaHandle1"></span><span id="instaHandle2"></span></span></a>
+    </section>
+  </main>
+
+  <!-- 11. Footer -->
+  <footer class="footer" id="contact" data-theme="dark">
+    <div class="foot-panel topo-dark">
+      <div class="foot-title-wrap">
+        <h2 class="foot-title mixed" id="footTitle"></h2>
+        <span class="sig sig-foot" data-draw></span>
+      </div>
+      <div class="foot-grid">
+        <div class="foot-col">
+          <span class="eyebrow" data-ui="pages"></span>
+          <nav id="footPages"></nav>
+        </div>
+        <div class="foot-portrait" id="footPortrait">
+          <img class="fp base" id="fpBase" alt="">
+          <img class="fp alt" id="fpAlt" alt="">
+        </div>
+        <div class="foot-col">
+          <span class="eyebrow" data-ui="follow"></span>
+          <nav id="footSocial"></nav>
+        </div>
+      </div>
+      <div class="foot-cta">
+        <a href="#" class="btn js-mail"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v8H2zM2 4l6 5 6-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span class="roll"><span data-ui="business"></span><span data-ui="business"></span></span></a>
+      </div>
+      <div class="foot-bar">
+        <span>© <span id="year"></span> <span id="footName"></span></span>
+        <a class="js-mail-text" href="#"></a>
+        <span id="footLoc"></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js?v=7"></script>
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="script.js?v=7"></script>
+</body>
+</html>
