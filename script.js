@@ -13,11 +13,11 @@
 
   /* ---------- Interface texts ---------- */
   const UI = {
-    ru: { cta: 'Написать', discuss: 'Обсудить проект', business: 'Деловые запросы', scroll: 'Листай', pages: 'Страницы', follow: 'Я в сети',
+    ru: { loading: 'Загрузка', projectsN: 'проектов', nextTitle: 'Следующий *проект* — ваш', interestsN: 'увлечений', cta: 'Написать', discuss: 'Обсудить проект', business: 'Деловые запросы', scroll: 'Листай', pages: 'Страницы', follow: 'Я в сети',
           menu: ['Главная', 'Обо мне', 'Путь', 'Проекты', 'Контакты'] },
-    en: { cta: 'Get in touch', discuss: 'Discuss a project', business: 'Business inquiries', scroll: 'Scroll', pages: 'Pages', follow: 'Follow',
+    en: { loading: 'Loading', projectsN: 'projects', nextTitle: 'Your project *could be* next', interestsN: 'interests', cta: 'Get in touch', discuss: 'Discuss a project', business: 'Business inquiries', scroll: 'Scroll', pages: 'Pages', follow: 'Follow',
           menu: ['Home', 'About', 'Path', 'Projects', 'Contact'] },
-    kz: { cta: 'Жазу', discuss: 'Жобаны талқылау', business: 'Іскерлік сұраулар', scroll: 'Айналдыр', pages: 'Беттер', follow: 'Желіде',
+    kz: { loading: 'Жүктелуде', projectsN: 'жоба', nextTitle: 'Келесі *жоба* — сіздікі', interestsN: 'қызығушылық', cta: 'Жазу', discuss: 'Жобаны талқылау', business: 'Іскерлік сұраулар', scroll: 'Айналдыр', pages: 'Беттер', follow: 'Желіде',
           menu: ['Басты бет', 'Мен туралы', 'Жол', 'Жобалар', 'Байланыс'] }
   };
   const MENU_IDS = ['#top', '#about', '#story', '#projects', '#contact'];
@@ -85,9 +85,10 @@
   const P = S.photos || {};
 
   /* ---------- Static (language-independent) setup ---------- */
-  $('#hpBase').src = P.base; $('#hpAlt').src = P.alt;
-  $('#fpBase').src = P.base; $('#fpAlt').src = P.alt;
-  $('#pathsImg').src = P.helmet2 || P.alt;
+  $('#hpBase').src = P.base;
+  $('#fpImg').src = P.helmetOn || P.base;
+  $('#pathsHelmet').src = P.helmetCut || P.helmet2;
+  $('#pathsFace').src = P.base;
   $('#breakImg').src = P.breakPhoto || P.studio;
   $('#year').textContent = new Date().getFullYear();
   const mailto = S.email ? `mailto:${S.email}` : '#contact';
@@ -104,6 +105,8 @@
   $('#footSocial').innerHTML = socialLinks;
 
   const stackHtml = (S.stack || []).map((x) => `<span class="stack-item">${esc(x)}</span>`).join('');
+  const logosHtml = (S.stack || []).map((x) => `<span class="lg">${esc(x)}</span>`).join('');
+  $('#footLogos').innerHTML = logosHtml + logosHtml + logosHtml;
   $('#stTrack').innerHTML = stackHtml + stackHtml;
 
   // Socials fan: studio portrait in the middle, life photos around it
@@ -136,6 +139,34 @@
     $$('[data-draw]:not(.in), [data-wipe]:not(.in)').forEach((el) => drawIO.observe(el.parentElement));
   };
 
+  /* ---------- Project filter ---------- */
+  let curFilter = 'all';
+  function applyFilter() {
+    $$('#pgrid .pcard').forEach((c) => c.classList.toggle('hide', !(curFilter === 'all' || c.dataset.cat === curFilter || c.dataset.cat === '*')));
+    $$('#pfilters button').forEach((b) => b.classList.toggle('active', b.dataset.f === curFilter));
+    requestAnimationFrame(layout);
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('#pfilters button');
+    if (!b) return;
+    curFilter = b.dataset.f;
+    applyFilter();
+  });
+
+  /* ---------- Interests: photo follows the cursor over the rows ---------- */
+  const intFloat = $('#intFloat'), intImg = intFloat.querySelector('img');
+  const fl = { x: 0, y: 0, tx: 0, ty: 0, on: false };
+  document.addEventListener('pointerover', (e) => {
+    const row = e.target.closest && e.target.closest('.int-row');
+    if (row && fine) {
+      if (intImg.getAttribute('src') !== row.dataset.img) intImg.src = row.dataset.img;
+      fl.on = true; intFloat.classList.add('show');
+    } else if (fl.on && !(e.target.closest && e.target.closest('.int-list'))) {
+      fl.on = false; intFloat.classList.remove('show');
+    }
+  });
+  addEventListener('scroll', () => { if (fl.on) { fl.on = false; intFloat.classList.remove('show'); } }, { passive: true });
+
   /* ---------- Language-dependent render ---------- */
   function render() {
     const name = t(S.name);
@@ -146,7 +177,7 @@
 
     $('#wm1').textContent = name;
     $('#wm2').textContent = t(S.role);
-    $('#loaderName').textContent = `${name} — ${t(S.role)}`;
+    $('#loaderName').textContent = `${ui('loading')} · ${name}`;
     $('#footName').textContent = name;
     $('#footLoc').textContent = t(S.location);
 
@@ -178,6 +209,7 @@
     const item = (it) => {
       if (it.type === 'chapter') return `<div class="t-chapter"><span class="n">${esc(it.n)}</span><h3 data-wipe>${esc(t(it.title))}</h3></div>`;
       if (it.type === 'text') return `<div class="t-text"><p data-wipe>${words(t(st.text))}</p></div>`;
+      if (it.type === 'cluster') return `<div class="t-cluster">${it.items.map((m) => `<figure class="t-mini"><figcaption class="eyebrow"><span class="cap-bar">${esc(t(m.cap))}</span></figcaption><div class="ph reveal-img">${img(m.src, t(m.cap))}</div></figure>`).join('')}</div>`;
       if (it.type === 'stats') return `<div class="t-stats">${(st.stats || []).map((x) => `<div class="t-stat" data-reveal><b>${esc(t(x.big))}</b><span class="eyebrow">${esc(t(x.label))}</span></div>`).join('')}</div>`;
       return `<figure class="t-photo" style="width:${it.w}rem;height:${it.h}rem;margin-top:${it.y * 1.1}rem">
         <figcaption class="eyebrow"><span class="cap-bar">${esc(t(it.cap))}</span></figcaption>
@@ -199,16 +231,46 @@
 
     // projects
     $('#projTitle').innerHTML = words(t(S.projectsTitle));
-    $('#pgrid').innerHTML = (S.projects || []).map((p, i) => {
-      const tag = p.link ? 'a' : 'div';
-      const href = p.link ? ` href="${esc(p.link)}" target="_blank" rel="noopener"` : '';
-      return `<${tag} class="pcard" data-reveal style="--d:${(i % 3) * 0.1}s"${href}><div class="pc-in">
-        <span class="eyebrow pc-idx">${String(i + 1).padStart(2, '0')}</span>
-        <span class="pc-tags">${(p.tags || []).slice(0, 2).map((x) => `<span>${esc(x)}</span>`).join('')}</span>
-        <div class="pc-shot"><div class="reveal-img" style="height:100%">${img(p.image, t(p.title))}</div></div>
-        <div class="pc-foot"><h3>${esc(t(p.title))}</h3><p>${esc(t(p.desc))}</p></div>
-      </div></${tag}>`;
+    const projects = S.projects || [];
+    const filters = (S.projectFilters || []).filter((f) => f.id === 'all' || projects.some((pr) => pr.cat === f.id));
+    $('#pfilters').innerHTML = filters.map((f) => {
+      const n = f.id === 'all' ? projects.length : projects.filter((pr) => pr.cat === f.id).length;
+      return `<button role="tab" data-f="${esc(f.id)}" class="${f.id === curFilter ? 'active' : ''}">${esc(t(f.label))}<sup>${String(n).padStart(2, '0')}</sup></button>`;
     }).join('');
+    const catLabel = (id) => t(((S.projectFilters || []).find((f) => f.id === id) || {}).label) || '';
+    $('#pgrid').innerHTML = projects.map((pr, i) => {
+      const tag = pr.link ? 'a' : 'div';
+      const href = pr.link ? ` href="${esc(pr.link)}" target="_blank" rel="noopener"` : '';
+      return `<${tag} class="pcard hcard" data-cat="${esc(pr.cat || '')}" data-reveal style="--d:${(i % 4) * 0.08}s"${href}><div class="hc-in">
+        <span class="eyebrow hc-idx">${String(i + 1).padStart(2, '0')}</span>
+        <span class="hc-tags">${(pr.tags || []).slice(0, 2).map((x) => `<span>${esc(x)}</span>`).join('')}</span>
+        <div class="hc-obj"><div class="device"><div class="screen" style="background-image:url('${esc(pr.image)}')"></div></div></div>
+        <div class="hc-photo" style="background-image:url('${esc(pr.image)}')"></div>
+        <div class="hc-desc">${esc(t(pr.desc))}</div>
+        <div class="hc-cap"><b>${esc(t(pr.title))}</b><em>${esc(catLabel(pr.cat))}</em></div>
+      </div></${tag}>`;
+    }).join('') + (S.ndaCard ? `<div class="pcard hcard nda" data-cat="*" data-reveal><div class="hc-in">
+        <span class="eyebrow hc-idx">NDA</span>
+        <div class="hc-obj"><svg class="lock" viewBox="0 0 64 64" aria-hidden="true"><rect x="14" y="28" width="36" height="26" rx="5"/><path d="M22 28v-8a10 10 0 0 1 20 0v8"/><circle cx="32" cy="40" r="3.5"/><path d="M32 43.5v5"/></svg></div>
+        <div class="hc-desc nda-desc">${esc(t(S.ndaCard.desc))}</div>
+        <div class="hc-cap"><b>${esc(t(S.ndaCard.title))}</b><em>NDA</em></div>
+      </div></div>` : '') + `<div class="pcard hcard cta" data-cat="*" data-reveal><div class="hc-in">
+        <span class="eyebrow hc-idx">${String(projects.length + 1).padStart(2, '0')}</span>
+        <div class="pc-big">${words(ui('nextTitle'))}</div>
+        <a href="${esc(mailto)}" class="btn"><span class="roll"><span>${esc(ui('discuss'))}</span><span>${esc(ui('discuss'))}</span></span></a>
+      </div></div>`;
+    applyFilter();
+
+    // interests
+    const ints = S.interests || [];
+    $('#intTitle').innerHTML = words(t(S.interestsTitle));
+    $('#intCount').textContent = `${String(ints.length).padStart(2, '0')} ${ui('interestsN')}`;
+    $('#intList').innerHTML = ints.map((it, i) => `<li class="int-row" data-img="${esc(it.img)}" data-reveal>
+      <img class="int-thumb" src="${esc(it.img)}" alt="" loading="lazy">
+      <span class="n">${String(i + 1).padStart(2, '0')}</span>
+      <h3>${esc(t(it.title))}</h3>
+      <p>${esc(t(it.text))}</p>
+      <i class="dot"></i></li>`).join('');
 
     // featured
     const F = S.featured || {};
@@ -276,9 +338,56 @@
   });
 
   /* ---------- Hero: second look revealed under the cursor ---------- */
-  const hero = $('#top'), portrait = $('#heroPortrait'), alt = $('#hpAlt');
+  const hero = $('#top'), portrait = $('#heroPortrait');
+  // liquid blob: the helmet is drawn into a canvas and cut by a soft, merging trail of circles
+  const altCv = $('#altCanvas'), altCtx = altCv.getContext('2d');
+  const maskCv = document.createElement('canvas'), maskCtx = maskCv.getContext('2d');
+  const altImg = new Image(); altImg.src = P.alt;
+  let cvW = 0, cvH = 0, cvDpr = 1, lastMx = 0, lastMy = 0, speed = 0, blobInit = false;
+  function altResize() {
+    cvDpr = Math.min(devicePixelRatio || 1, 1.5);
+    cvW = portrait.offsetWidth; cvH = portrait.offsetHeight;
+    altCv.width = maskCv.width = Math.max(1, Math.round(cvW * cvDpr));
+    altCv.height = maskCv.height = Math.max(1, Math.round(cvH * cvDpr));
+  }
+  altResize();
+  addEventListener('resize', altResize);
+  function drawBlob(ts, tx, ty, targetR) {
+    if (!blobInit) { trail.forEach((q) => { q.x = tx; q.y = ty; }); blobInit = true; }
+    trail[0].x = lerp(trail[0].x, tx, 0.2); trail[0].y = lerp(trail[0].y, ty, 0.2);
+    for (let i = 1; i < trail.length; i++) {
+      trail[i].x = lerp(trail[i].x, trail[i - 1].x, 0.42);
+      trail[i].y = lerp(trail[i].y, trail[i - 1].y, 0.42);
+    }
+    R = lerp(R, targetR, 0.07);
+    const a = altCtx;
+    a.setTransform(1, 0, 0, 1, 0, 0);
+    a.clearRect(0, 0, altCv.width, altCv.height);
+    if (R < 0.6 || !altImg.naturalWidth) return;
+    const m = maskCtx;
+    m.setTransform(cvDpr, 0, 0, cvDpr, 0, 0);
+    m.clearRect(0, 0, cvW, cvH);
+    m.filter = 'blur(7px)';
+    m.fillStyle = '#000';
+    m.beginPath();
+    trail.forEach((q, i) => {
+      const k = 1 - i / trail.length;
+      const r = R * (0.3 + 0.7 * Math.pow(k, 0.7)) * (1 + 0.07 * Math.sin(ts * 2.3 + i * 0.9));
+      m.moveTo(q.x + r, q.y);
+      m.arc(q.x, q.y, r, 0, Math.PI * 2);
+    });
+    m.fill();
+    m.filter = 'none';
+    const ar = altImg.naturalWidth / altImg.naturalHeight;
+    let dw, dh;
+    if (cvW / cvH > ar) { dh = cvH; dw = dh * ar; } else { dw = cvW; dh = dw / ar; }
+    a.drawImage(altImg, ((cvW - dw) / 2) * cvDpr, (cvH - dh) * cvDpr, dw * cvDpr, dh * cvDpr);
+    a.globalCompositeOperation = 'destination-in';
+    a.drawImage(maskCv, 0, 0);
+    a.globalCompositeOperation = 'source-over';
+  }
   const mouse = { x: innerWidth / 2, y: innerHeight / 2, on: false };
-  const trail = Array.from({ length: 7 }, () => ({ x: 0.5, y: 0.35 }));
+  const trail = Array.from({ length: 14 }, () => ({ x: 0, y: 0 }));
   let R = 0;
   addEventListener('pointermove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.on = true; }, { passive: true });
   document.addEventListener('pointerleave', () => { mouse.on = false; });
@@ -354,13 +463,13 @@
   }
 
   /* ---------- Main loop ---------- */
-  const header = $('#header');
+  const header = $('#header'), footPanel = $('.foot-panel'), footerEl = $('#contact');
   const intro = $('#top'), heroCard = $('#heroCard'), sigHero = $('#sigHero'), widget = $('#widget'), cue = $('.scroll-cue'), mqRows = $('.mq-rows');
   const NAVY = [20, 22, 43], CREAM2 = [236, 229, 218], CREAM = [246, 241, 234];
   const mix = (a, b, k) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * k)).join(',')})`;
   const themed = $$('[data-theme]');
   const breakS = $('#break'), breakFrame = $('#breakFrame'), breakImg = $('#breakImg'), breakCap = $('#breakCap');
-  const pathsS = $('#paths'), pathsImg = $('#pathsImg');
+  const pathsS = $('#paths'), pathsHelmet = $('#pathsHelmet'), pathsFace = $('#pathsFace');
   const fanS = $('#socials');
   let parallaxEls = [];
 
@@ -391,21 +500,18 @@
         const pr = portrait.getBoundingClientRect();
         const auto = !fine;
         const ts = time / 1000;
-        const tx = auto ? 0.5 + Math.sin(ts * 0.8) * 0.2 : (mouse.x - pr.left) / pr.width;
-        const ty = auto ? 0.36 + Math.sin(ts * 1.25) * 0.12 : (mouse.y - pr.top) / pr.height;
+        const tx = auto ? pr.width * (0.5 + Math.sin(ts * 0.8) * 0.2) : mouse.x - pr.left;
+        const ty = auto ? pr.height * (0.36 + Math.sin(ts * 1.25) * 0.12) : mouse.y - pr.top;
+        const v = Math.hypot(mouse.x - lastMx, mouse.y - lastMy);
+        lastMx = mouse.x; lastMy = mouse.y;
+        speed = lerp(speed, v, 0.12);
         const active = auto || mouse.on;
-        R = lerp(R, reduced ? 0 : (active ? pr.width * 0.17 : 0), 0.08);
-        trail[0].x = lerp(trail[0].x, tx, 0.22); trail[0].y = lerp(trail[0].y, ty, 0.22);
-        for (let i = 1; i < trail.length; i++) {
-          trail[i].x = lerp(trail[i].x, trail[i - 1].x, 0.36);
-          trail[i].y = lerp(trail[i].y, trail[i - 1].y, 0.36);
-        }
-        const mask = trail.map((pt, i) => `radial-gradient(circle ${Math.max(0, R * (1 - i * 0.12)).toFixed(1)}px at ${(pt.x * 100).toFixed(2)}% ${(pt.y * 100).toFixed(2)}%, #000 97%, transparent 100%)`).join(',');
-        alt.style.webkitMaskImage = mask;
-        alt.style.maskImage = mask;
+        const targetR = reduced ? 0 : (active ? pr.width * 0.21 * (1 + Math.min(speed / 40, 0.45)) : 0);
+        drawBlob(ts, tx, ty, targetR);
       } else if (R > 0) {
         R = 0;
-        alt.style.webkitMaskImage = alt.style.maskImage = 'radial-gradient(circle 0px at 50% 40%, #000 98%, transparent 100%)';
+        altCtx.setTransform(1, 0, 0, 1, 0, 0);
+        altCtx.clearRect(0, 0, altCv.width, altCv.height);
       }
 
       // contour lines: animate while the card is on screen; they bend around the cursor
@@ -436,6 +542,12 @@
       el.style.transform = `translate3d(0, ${((r.top + r.height / 2 - vh / 2) * +el.dataset.speed).toFixed(1)}px, 0)`;
     }
 
+    // things inside the sliding track: reveal by position (observers can miss transformed items)
+    trackInner.querySelectorAll('.reveal-img:not(.in), [data-wipe]:not(.in), [data-draw]:not(.in), [data-reveal]:not(.in)').forEach((el) => {
+      const rr = el.getBoundingClientRect();
+      if (rr.left < innerWidth * 0.95 && rr.right > 0 && rr.top < vh && rr.bottom > 0) el.classList.add('in');
+    });
+
     // horizontal story track
     if (!mob) {
       const r = track.getBoundingClientRect();
@@ -458,7 +570,16 @@
       const r = pathsS.getBoundingClientRect();
       const p = clamp((vh - r.top) / (vh * 0.9));
       const e = 1 - Math.pow(1 - p, 3);
-      pathsImg.style.transform = `translateX(${(-45 * (1 - e)).toFixed(2)}%) rotate(${(-10 * (1 - e)).toFixed(2)}deg)`;
+      pathsHelmet.style.transform = `translateX(${(-40 * (1 - e)).toFixed(2)}%) rotate(${(-8 * (1 - e)).toFixed(2)}deg)`;
+      pathsFace.style.transform = `translateX(${(40 * (1 - e)).toFixed(2)}%)`;
+    }
+
+    // interests: floating photo trails the cursor and tilts with speed
+    if (fine) {
+      fl.tx = mouse.x + 24; fl.ty = mouse.y - 140;
+      const vx = fl.tx - fl.x;
+      fl.x = lerp(fl.x, fl.tx, 0.16); fl.y = lerp(fl.y, fl.ty, 0.16);
+      intFloat.style.transform = `translate3d(${fl.x.toFixed(1)}px, ${fl.y.toFixed(1)}px, 0) rotate(${clamp(vx * 0.05, -12, 12).toFixed(2)}deg)`;
     }
 
     // socials fan opens as you scroll in
@@ -467,11 +588,16 @@
       const p = clamp((vh - r.top) / (vh * 0.85));
       const e = 1 - Math.pow(1 - p, 3);
       const cards = fanS.querySelectorAll('.fan-card');
-      const n = cards.length, step = (mob ? 4.4 : 11.5) * u;
+      const n = cards.length;
+      // the whole arc keeps rolling while you scroll; the card nearest the centre comes forward
+      const spin = (0.5 - clamp((vh - r.top) / (r.height + vh))) * (mob ? 26 : 34);
+      const stepA = mob ? 9 : 11;
       cards.forEach((c, i) => {
         const o = i - (n - 1) / 2;
-        c.style.transform = `translate(${(o * step * e).toFixed(1)}px, ${(Math.abs(o) * 1.4 * u * e + (1 - e) * 4 * u).toFixed(1)}px) rotate(${(o * 6 * e).toFixed(2)}deg) scale(${o === 0 ? 1.08 : 1})`;
-        c.style.zIndex = String(20 - Math.round(Math.abs(o) * 2));
+        const ang = o * stepA * e + spin;
+        const near = Math.max(0, 1 - Math.abs(ang) / (stepA * 1.6));
+        c.style.transform = `translateY(${((1 - e) * 5 * u - near * 1.2 * u).toFixed(1)}px) rotate(${ang.toFixed(2)}deg) scale(${(0.94 + near * 0.12).toFixed(3)})`;
+        c.style.zIndex = String(100 - Math.round(Math.abs(ang) * 2));
       });
     }
 
@@ -479,6 +605,9 @@
     let theme = 'light';
     for (const sct of themed) { const r = sct.getBoundingClientRect(); if (r.top <= 40 && r.bottom > 40) { theme = sct.dataset.theme; break; } }
     header.classList.toggle('on-dark', theme === 'dark');
+    // over the orange frame of the footer the orange button would vanish -> switch the header to navy
+    const fpr = footPanel.getBoundingClientRect(), ftr = footerEl.getBoundingClientRect();
+    header.classList.toggle('on-accent', ftr.top <= 40 && fpr.top > 40);
 
     requestAnimationFrame(tick);
   }
@@ -493,7 +622,6 @@
   let fontsReady = false;
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fontsReady = true; layout(); });
   setTimeout(() => { fontsReady = true; }, 2400);
-  requestAnimationFrame(() => $('.sig-loader').classList.add('in'));
   (function step(now) {
     const k = clamp((now - t0) / minDur);
     const shown = Math.round((fontsReady ? k : Math.min(k, 0.9)) * 100);

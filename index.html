@@ -6,19 +6,22 @@
   <title>Meirzhan — Developer</title>
   <meta name="description" content="Мейржан — разработчик: AI-отделы продаж, боты, сайты.">
   <meta name="theme-color" content="#14162B">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
+  <link rel="apple-touch-icon" href="favicon.png?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,700&family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,300..1000&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body class="is-loading">
 
   <!-- Загрузка -->
   <div class="loader" id="loader">
-    <span class="sig sig-loader"></span>
+    <div class="loader-mark"><svg class="mk" viewBox="0 0 124 92" aria-hidden="true"><g transform="translate(19 0) skewX(-12)" fill="none" stroke="currentColor" stroke-width="13" stroke-linejoin="miter" stroke-miterlimit="10"><path pathLength="1" d="M14 84 V10 L40 50 L66 10 V84"/><path pathLength="1" d="M66 52 L101 10"/><path pathLength="1" d="M79 38 L106 84"/></g></svg></div>
     <div class="loader-bar">
       <span class="loader-count" id="loaderCount">0</span>
-      <span class="eyebrow" id="loaderName"></span>
+      <span class="loader-text" id="loaderName"></span>
+      <span class="loader-count ghost">100</span>
     </div>
   </div>
 
@@ -28,7 +31,7 @@
       <span class="wm-1" id="wm1"></span>
       <span class="wm-2" id="wm2"></span>
     </a>
-    <a href="#top" class="mark" aria-hidden="true" tabindex="-1"><span class="sig sig-mark in"></span></a>
+    <a href="#top" class="mark" aria-label="MK"><svg class="mk" viewBox="0 0 124 92" aria-hidden="true"><g transform="translate(19 0) skewX(-12)" fill="none" stroke="currentColor" stroke-width="13" stroke-linejoin="miter" stroke-miterlimit="10"><path pathLength="1" d="M14 84 V10 L40 50 L66 10 V84"/><path pathLength="1" d="M66 52 L101 10"/><path pathLength="1" d="M79 38 L106 84"/></g></svg></a>
     <div class="header-right">
       <div class="lang" role="group" aria-label="Language">
         <button data-lang="ru">RU</button><button data-lang="en">EN</button><button data-lang="kz">KZ</button>
@@ -67,7 +70,7 @@
           <div class="hero-glow"></div>
           <div class="hero-portrait" id="heroPortrait">
             <img class="hp base" id="hpBase" alt="">
-            <img class="hp alt" id="hpAlt" alt="">
+            <canvas class="hp altc" id="altCanvas" aria-hidden="true"></canvas>
           </div>
         </div>
         <span class="sig sig-hero" id="sigHero"></span>
@@ -97,9 +100,20 @@
     </section>
 
     <!-- 5. Work / Life -->
-    <section class="paths" id="paths" data-theme="light">
-      <div class="paths-visual"><img id="pathsImg" alt=""></div>
+    <section class="paths topo" id="paths" data-theme="light">
+      <img class="pv-left" id="pathsHelmet" alt="">
+      <img class="pv-right" id="pathsFace" alt="">
       <div class="paths-grid" id="pathsGrid"></div>
+    </section>
+
+    <!-- 5b. Interests -->
+    <section class="interests" id="interests" data-theme="dark">
+      <div class="int-head">
+        <h2 class="sec-title mixed" id="intTitle" data-wipe></h2>
+        <span class="eyebrow" id="intCount"></span>
+      </div>
+      <ul class="int-list" id="intList"></ul>
+      <div class="int-float" id="intFloat" aria-hidden="true"><img alt=""></div>
     </section>
 
     <!-- 6. Full-bleed photo -->
@@ -113,6 +127,7 @@
     <!-- 7. Projects -->
     <section class="projects" id="projects" data-theme="dark">
       <h2 class="sec-title mixed center" id="projTitle" data-wipe></h2>
+      <div class="pfilters" id="pfilters" role="tablist"></div>
       <div class="pgrid" id="pgrid"></div>
     </section>
 
@@ -153,33 +168,26 @@
         <h2 class="foot-title mixed" id="footTitle"></h2>
         <span class="sig sig-foot" data-draw></span>
       </div>
-      <div class="foot-grid">
-        <div class="foot-col">
-          <span class="eyebrow" data-ui="pages"></span>
-          <nav id="footPages"></nav>
-        </div>
-        <div class="foot-portrait" id="footPortrait">
-          <img class="fp base" id="fpBase" alt="">
-          <img class="fp alt" id="fpAlt" alt="">
-        </div>
-        <div class="foot-col">
-          <span class="eyebrow" data-ui="follow"></span>
-          <nav id="footSocial"></nav>
-        </div>
+      <div class="foot-col foot-left">
+        <span class="eyebrow" data-ui="pages"></span>
+        <nav id="footPages"></nav>
       </div>
+      <div class="foot-col foot-right">
+        <span class="eyebrow" data-ui="follow"></span>
+        <nav id="footSocial"></nav>
+      </div>
+      <div class="foot-logos"><div class="mq-track slow" id="footLogos"></div></div>
+      <div class="foot-portrait" id="footPortrait"><img id="fpImg" alt=""></div>
       <div class="foot-cta">
-        <a href="#" class="btn js-mail"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v8H2zM2 4l6 5 6-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span class="roll"><span data-ui="business"></span><span data-ui="business"></span></span></a>
+        <a href="#" class="btn js-mail"><span class="roll"><span data-ui="business"></span><span data-ui="business"></span></span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13L13 3M6 3h7v7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
       </div>
-      <div class="foot-bar">
-        <span>© <span id="year"></span> <span id="footName"></span></span>
-        <a class="js-mail-text" href="#"></a>
-        <span id="footLoc"></span>
-      </div>
+      <div class="foot-tab foot-tab-l"><span>© <span id="year"></span> <span id="footName"></span></span> <a class="js-mail-text" href="#"></a></div>
+      <div class="foot-tab foot-tab-r"><span id="footLoc"></span></div>
     </div>
   </footer>
 
-  <script src="config.js?v=7"></script>
+  <script src="config.js?v=25"></script>
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="script.js?v=7"></script>
+  <script src="script.js?v=25"></script>
 </body>
 </html>
