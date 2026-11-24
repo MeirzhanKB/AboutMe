@@ -20,8 +20,13 @@ window.SITE = {
     studio: "photos/me-studio.jpg",      // портрет с фоном
     breakPhoto: "photos/life/12-horse.jpg",
     fan: [                               // веер Instagram (центральное — по середине списка)
-      "photos/life/09-dinner.jpg", "photos/life/08-kitchen.jpg", "photos/about-4.jpg",
-      "photos/me-studio.jpg", "photos/life/07-mountains.jpg", "photos/life/06-steppe.jpg", "photos/life/10-cafe.jpg"
+      "photos/about-4.jpg",
+      "photos/about-1.jpg",
+      "photos/me-helmet-2.jpg",
+      "photos/me-studio.jpg",
+      "photos/about-2.jpg",
+      "photos/life/07-mountains.jpg",
+      "photos/life/12-horse.jpg"
     ]
   },
 
@@ -68,25 +73,17 @@ window.SITE = {
     items: [
       { type: "chapter", n: "01", title: { ru: "Детство", en: "Childhood", kz: "Балалық" } },
       { type: "cluster", items: [
-        { src: "photos/life/01-baby.jpg", cap: { ru: "Самое начало", en: "The very beginning", kz: "Бастауы" } },
         { src: "photos/life/02-bear.jpg", cap: { ru: "Утренник", en: "New Year party", kz: "Ертеңгілік" } },
-        { src: "photos/life/03-dance.jpg", cap: { ru: "Первый танец", en: "First dance", kz: "Алғашқы би" } },
         { src: "photos/life/04-family.jpg", cap: { ru: "Семья", en: "Family", kz: "Отбасы" } }
       ] },
       { type: "text" },
       { type: "chapter", n: "02", title: { ru: "Друзья и дороги", en: "Friends & roads", kz: "Достар мен жолдар" } },
       { type: "photo", src: "photos/life/05-turkestan.jpg", w: 22, h: 29, y: -10, cap: { ru: "Туркестан · ночь", en: "Turkestan · night", kz: "Түркістан · түн" } },
-      { type: "photo", src: "photos/life/06-steppe.jpg", w: 15, h: 26, y: 14, cap: { ru: "Степь", en: "The steppe", kz: "Дала" } },
       { type: "photo", src: "photos/life/07-mountains.jpg", w: 20, h: 27, y: -6, cap: { ru: "Горы · дорога", en: "Mountains · road", kz: "Тау · жол" } },
       { type: "photo", src: "photos/about-1.jpg", w: 17, h: 23, y: 12, cap: { ru: "Горы · зима", en: "Mountains · winter", kz: "Таулар · қыс" } },
-      { type: "photo", src: "photos/life/08-kitchen.jpg", w: 20, h: 27, y: -12, cap: { ru: "Свои люди", en: "My people", kz: "Өз адамдарым" } },
-      { type: "photo", src: "photos/life/09-dinner.jpg", w: 21, h: 28, y: 8, cap: { ru: "Новый год с друзьями", en: "New Year with friends", kz: "Достармен Жаңа жыл" } },
-      { type: "photo", src: "photos/life/10-cafe.jpg", w: 16, h: 21, y: -14, cap: { ru: "Вечер в городе", en: "Evening in the city", kz: "Қаладағы кеш" } },
-      { type: "photo", src: "photos/life/11-night.jpg", w: 17, h: 22, y: 12, cap: { ru: "Ночная дорога", en: "Night drive", kz: "Түнгі жол" } },
       { type: "chapter", n: "03", title: { ru: "Сейчас", en: "Now", kz: "Қазір" } },
       { type: "stats" },
-      { type: "photo", src: "photos/about-2.jpg", w: 18, h: 25, y: -8, cap: { ru: "Ночь · город", en: "Night · city", kz: "Түн · қала" } },
-      { type: "photo", src: "photos/about-6.jpg", w: 20, h: 27, y: 10, cap: { ru: "Шаг за шагом", en: "Step by step", kz: "Қадам сайын" } }
+      { type: "photo", src: "photos/about-2.jpg", w: 18, h: 25, y: -8, cap: { ru: "Ночь · город", en: "Night · city", kz: "Түн · қала" } }
     ],
     stats: [
       { big: "6", label: { ru: "лет в IT", en: "years in IT", kz: "жыл IT-де" } },
@@ -161,13 +158,13 @@ window.SITE = {
       title: { ru: "Aqua Atom", en: "Aqua Atom", kz: "Aqua Atom" },
       cat: "web", tags: ["Web", "KZ / RU", "B2B"],
       desc: { ru: "Сайт производителя фильтров: каталог и заявки на КП.", en: "Filter manufacturer website: catalog and quote requests.", kz: "Сүзгі өндірушісінің сайты: каталог және КҰ өтінімдері." },
-      image: "photos/projects/aqua-atom.jpg", link: ""
+      image: "photos/projects/aqua-atom.jpg", link: "https://aquaatom.kz/"
     },
     {
       title: { ru: "Живая Вода — Магазин", en: "Zhivaya Voda — Store", kz: "Живая Вода — Дүкен" },
       cat: "shop", tags: ["E-commerce", "Online pay"],
       desc: { ru: "Магазин запчастей для водоматов с онлайн-оплатой.", en: "Parts store for water vending machines with online payment.", kz: "Су автоматтарына арналған онлайн-төлемі бар дүкен." },
-      image: "photos/projects/zhivaya-voda-shop.jpg", link: ""
+      image: "photos/projects/zhivaya-voda-shop.jpg", link: "https://filterstore.kz/"
     },
     {
       title: { ru: "English с котом Кевином", en: "English with Kevin", kz: "Кевинмен ағылшын" },
@@ -185,6 +182,42 @@ window.SITE = {
       en: "Internal systems and automation for companies — under NDA. Details in person.",
       kz: "Компанияларға арналған ішкі жүйелер мен автоматтандыру — NDA бойынша. Толығырақ — жеке кездесуде."
     }
+  },
+
+  // --- Как я работаю (4 шага) -----------------------------
+  process: {
+    eyebrow: { ru: "Как я работаю", en: "How I work", kz: "Қалай жұмыс істеймін" },
+    title: { ru: "От идеи до *заявок* — четыре шага", en: "From idea to *leads* — four steps", kz: "Идеядан *өтінімдерге* дейін — төрт қадам" },
+    steps: [
+      { title: { ru: "Знакомство", en: "Discovery", kz: "Танысу" },
+        text: { ru: "Разбираемся, где теряются клиенты и заявки, и решаем, что именно должен делать бот или сайт.", en: "We find where clients and leads get lost and decide exactly what the bot or site should do.", kz: "Клиенттер мен өтінімдер қай жерде жоғалатынын анықтап, бот не сайт нақты не істеуі керегін шешеміз." } },
+      { title: { ru: "Прототип", en: "Prototype", kz: "Прототип" },
+        text: { ru: "Показываю рабочую версию на ваших реальных вопросах и товарах — как в демо выше, только про ваш бизнес.", en: "I show a working version on your real questions and products — like the demo above, but about your business.", kz: "Нақты сұрақтарыңыз бен тауарларыңызда жұмыс істейтін нұсқаны көрсетемін — жоғарыдағы демо сияқты, бірақ сіздің бизнесіңіз туралы." } },
+      { title: { ru: "Запуск", en: "Launch", kz: "Іске қосу" },
+        text: { ru: "Подключаю к WhatsApp, сайту и вашей CRM, показываю менеджерам, как принимать заявки от бота.", en: "I connect it to WhatsApp, your site and CRM, and show managers how to take leads from the bot.", kz: "WhatsApp-қа, сайтқа және CRM-ге қосып, менеджерлерге боттан өтінім қабылдауды көрсетемін." } },
+      { title: { ru: "Поддержка", en: "Support", kz: "Қолдау" },
+        text: { ru: "Слежу за диалогами, дообучаю бота и улучшаю ответы, чтобы он продавал всё лучше.", en: "I watch the conversations, retrain the bot and improve its answers so it sells better and better.", kz: "Диалогтарды қадағалап, ботты қайта үйретемін және жауаптарын жақсартамын — ол барған сайын жақсы сатады." } }
+    ]
+  },
+
+  // --- Частые вопросы (без цен) ---------------------------
+  faq: {
+    eyebrow: { ru: "Вопросы", en: "Questions", kz: "Сұрақтар" },
+    title: { ru: "Частые *вопросы*", en: "Frequent *questions*", kz: "Жиі қойылатын *сұрақтар*" },
+    items: [
+      { q: { ru: "Бот говорит на казахском?", en: "Does the bot speak Kazakh?", kz: "Бот қазақша сөйлей ме?" },
+        a: { ru: "Да. Бот отвечает на русском и казахском и сам понимает, на каком языке пишет клиент. Если нужно — добавлю английский.", en: "Yes. The bot answers in Russian and Kazakh and detects which language the client writes in. English can be added if needed.", kz: "Иә. Бот орысша және қазақша жауап береді, клиенттің қай тілде жазғанын өзі түсінеді. Қажет болса, ағылшын тілін қосамын." } },
+      { q: { ru: "Что будет, если бот не знает ответа?", en: "What if the bot does not know the answer?", kz: "Бот жауапты білмесе не болады?" },
+        a: { ru: "Он не выдумывает, а передаёт диалог менеджеру вместе со всей историей переписки — клиенту не придётся повторять.", en: "It does not make things up — it hands the chat to a manager with the full history, so the client never has to repeat themselves.", kz: "Ол ойдан шығармайды — диалогты бүкіл хат алмасу тарихымен бірге менеджерге береді, клиентке қайталаудың қажеті жоқ." } },
+      { q: { ru: "Мне нужен свой программист или сервер?", en: "Do I need my own developer or server?", kz: "Маған өз бағдарламашым не серверім керек пе?" },
+        a: { ru: "Нет. Я всё настраиваю, запускаю и поддерживаю сам. От вас — доступы, товары и ответы на частые вопросы клиентов.", en: "No. I set up, launch and maintain everything myself. From you I only need access, your products and answers to common client questions.", kz: "Жоқ. Бәрін өзім баптап, іске қосып, қолдаймын. Сізден — қолжетімділік, тауарлар және клиенттердің жиі сұрақтарына жауаптар." } },
+      { q: { ru: "Куда попадают заявки?", en: "Where do the leads go?", kz: "Өтінімдер қайда түседі?" },
+        a: { ru: "Туда, где вам удобно: в CRM, в Google Таблицу или сообщением менеджеру в WhatsApp — с именем, городом и тем, что нужно клиенту.", en: "Wherever suits you: your CRM, a Google Sheet or a WhatsApp message to a manager — with the client's name, city and what they need.", kz: "Өзіңізге ыңғайлы жерге: CRM-ге, Google кестеге немесе менеджерге WhatsApp хабарламасымен — клиенттің аты, қаласы және не керегімен." } },
+      { q: { ru: "Вы работаете под NDA?", en: "Do you work under NDA?", kz: "NDA бойынша жұмыс істейсіз бе?" },
+        a: { ru: "Да. Часть моих проектов — закрытые внутренние системы компаний, поэтому их нет в портфолио. Ваши данные остаются только у вас.", en: "Yes. Some of my projects are private internal company systems, which is why they are not in the portfolio. Your data stays yours.", kz: "Иә. Жобаларымның бір бөлігі — компаниялардың жабық ішкі жүйелері, сондықтан олар портфолиода жоқ. Деректеріңіз тек сізде қалады." } },
+      { q: { ru: "Можно начать с маленькой задачи?", en: "Can we start with something small?", kz: "Кішкентай тапсырмадан бастауға бола ма?" },
+        a: { ru: "Конечно. Часто начинаем с одного сценария — например, отвечать на вопросы о наличии, — а дальше растём, когда видно результат.", en: "Of course. We often start with one scenario — say, answering stock questions — and grow once the results are visible.", kz: "Әрине. Көбіне бір сценарийден бастаймыз — мысалы, тауардың бар-жоғы туралы сұрақтарға жауап беру — нәтиже көрінгенде кеңейтеміз." } }
+    ]
   },
 
   // Фильтры над проектами (cat у проекта = id фильтра)

@@ -14,13 +14,13 @@
   /* ---------- Interface texts ---------- */
   const UI = {
     ru: { loading: 'Загрузка', projectsN: 'проектов', nextTitle: 'Следующий *проект* — ваш', interestsN: 'увлечений', cta: 'Написать', discuss: 'Обсудить проект', business: 'Деловые запросы', scroll: 'Листай', pages: 'Страницы', follow: 'Я в сети',
-          menu: ['Главная', 'Обо мне', 'Путь', 'Проекты', 'Контакты'] },
+          menu: ['Главная', 'Обо мне', 'Путь', 'Проекты', 'AI-демо', 'Контакты'] },
     en: { loading: 'Loading', projectsN: 'projects', nextTitle: 'Your project *could be* next', interestsN: 'interests', cta: 'Get in touch', discuss: 'Discuss a project', business: 'Business inquiries', scroll: 'Scroll', pages: 'Pages', follow: 'Follow',
-          menu: ['Home', 'About', 'Path', 'Projects', 'Contact'] },
+          menu: ['Home', 'About', 'Path', 'Projects', 'AI demo', 'Contact'] },
     kz: { loading: 'Жүктелуде', projectsN: 'жоба', nextTitle: 'Келесі *жоба* — сіздікі', interestsN: 'қызығушылық', cta: 'Жазу', discuss: 'Жобаны талқылау', business: 'Іскерлік сұраулар', scroll: 'Айналдыр', pages: 'Беттер', follow: 'Желіде',
-          menu: ['Басты бет', 'Мен туралы', 'Жол', 'Жобалар', 'Байланыс'] }
+          menu: ['Басты бет', 'Мен туралы', 'Жол', 'Жобалар', 'AI-демо', 'Байланыс'] }
   };
-  const MENU_IDS = ['#top', '#about', '#story', '#projects', '#contact'];
+  const MENU_IDS = ['#top', '#about', '#story', '#projects', '#demo', '#contact'];
   const LANGS = Object.keys(UI);
   const store = {
     get() { try { return localStorage.getItem('lang'); } catch (e) { return null; } },
@@ -87,7 +87,8 @@
   /* ---------- Static (language-independent) setup ---------- */
   $('#hpBase').src = P.base;
   $('#fpImg').src = P.helmetOn || P.base;
-  $('#pathsHelmet').src = P.helmetCut || P.helmet2;
+  // phones: helmet / no helmet side by side (like "on track / off track"); desktop: the lime helmet at the edge
+  $('#pathsHelmet').src = isMobile() ? (P.alt || P.helmetCut) : (P.helmetCut || P.helmet2);
   $('#pathsFace').src = P.base;
   $('#breakImg').src = P.breakPhoto || P.studio;
   $('#year').textContent = new Date().getFullYear();
@@ -133,7 +134,7 @@
       });
       drawIO.unobserve(en.target);
     });
-  }, { threshold: 0.25 });
+  }, { threshold: 0.1, rootMargin: '0px 0px 8% 0px' });
   const observe = () => {
     $$('[data-reveal]:not(.in), .mf-text:not(.in), .reveal-img:not(.in)').forEach((el) => io.observe(el));
     $$('[data-draw]:not(.in), [data-wipe]:not(.in)').forEach((el) => drawIO.observe(el.parentElement));
@@ -183,7 +184,22 @@
 
     const menu = ui('menu');
     $('#menuLinks').innerHTML = menu.map((m, i) => `<a href="${MENU_IDS[i]}"><small>0${i + 1}</small><span class="roll"><span>${esc(m)}</span><span>${esc(m)}</span></span></a>`).join('');
-    $('#footPages').innerHTML = menu.slice(0, 4).map((m, i) => `<a href="${MENU_IDS[i]}">${esc(m)}</a>`).join('');
+    $('#footPages').innerHTML = menu.slice(0, 5).map((m, i) => `<a href="${MENU_IDS[i]}">${esc(m)}</a>`).join('');
+
+    // how I work + FAQ
+    const PR = S.process;
+    if (PR && $('#process')) {
+      $('#prEyebrow').textContent = t(PR.eyebrow);
+      $('#prTitle').innerHTML = words(t(PR.title));
+      $('#prSteps').innerHTML = (PR.steps || []).map((st, i) => `<li class="pr-step" data-reveal style="--d:${(i * 0.12).toFixed(2)}s">
+        <span class="pr-n">0${i + 1}</span><h3>${esc(t(st.title))}</h3><p>${esc(t(st.text))}</p></li>`).join('');
+    }
+    const FQ = S.faq;
+    if (FQ && $('#faq')) {
+      $('#fqEyebrow').textContent = t(FQ.eyebrow);
+      $('#fqTitle').innerHTML = words(t(FQ.title));
+      $('#fqList').innerHTML = (FQ.items || []).map((it) => `<details class="fq-item" data-reveal><summary><span>${esc(t(it.q))}</span><i aria-hidden="true"></i></summary><div class="fq-a"><p>${esc(t(it.a))}</p></div></details>`).join('');
+    }
 
     // hero widget
     const W = S.widget || {};
@@ -243,7 +259,7 @@
       const href = pr.link ? ` href="${esc(pr.link)}" target="_blank" rel="noopener"` : '';
       return `<${tag} class="pcard hcard" data-cat="${esc(pr.cat || '')}" data-reveal style="--d:${(i % 4) * 0.08}s"${href}><div class="hc-in">
         <span class="eyebrow hc-idx">${String(i + 1).padStart(2, '0')}</span>
-        <span class="hc-tags">${(pr.tags || []).slice(0, 2).map((x) => `<span>${esc(x)}</span>`).join('')}</span>
+        ${pr.link ? `<span class="hc-live"><i></i>${esc(pr.link.replace(/^https?:\/\//, '').replace(/\/$/, ''))} ↗</span>` : `<span class="hc-tags">${(pr.tags || []).slice(0, 2).map((x) => `<span>${esc(x)}</span>`).join('')}</span>`}
         <div class="hc-obj"><div class="device"><div class="screen" style="background-image:url('${esc(pr.image)}')"></div></div></div>
         <div class="hc-photo" style="background-image:url('${esc(pr.image)}')"></div>
         <div class="hc-desc">${esc(t(pr.desc))}</div>
