@@ -276,3 +276,10 @@ body.ready #hpBase { opacity: 1; translate: 0 0; }
 }
 .intro .hero-giant { top: 15%; }
 @media (max-width: 991px) { .intro .hero-giant { top: 14%; font-size: 21.5vw; } }
+
+/* giant name: letters no longer overlap (thin letters like the Kazakh «І» stay visible); size is set by JS to fit the width */
+.intro .hero-giant { letter-spacing: 0; font-weight: 800; font-variation-settings: "wdth" 75, "opsz" 144; line-height: .82; padding: 0 .02em; }
+@media (max-width: 991px) { .intro .hero-giant { letter-spacing: 0; } }
+/* room for the «Й» breve: the gradient text is only painted inside the box */
+.intro .hero-giant { padding-top: .2em; top: 9%; line-height: .86; }
+@media (max-width: 991px) { .intro .hero-giant { top: 10%; } }

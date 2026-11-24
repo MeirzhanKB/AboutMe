@@ -101,7 +101,7 @@
     $$('.js-mail').forEach((a) => { a.href = `mailto:${S.email}`; });
     $$('.js-mail-text').forEach((a) => { a.href = `mailto:${S.email}`; a.textContent = S.email; });
     $('#year').textContent = new Date().getFullYear();
-    fitFootTitle();
+    fitFootTitle(); fitGiant();
 
     observe();
   }
@@ -124,8 +124,17 @@
     const maxW = ft.parentElement.clientWidth * 0.94;
     if (ft.offsetWidth > maxW) ft.style.fontSize = `${parseFloat(getComputedStyle(ft).fontSize) * maxW / ft.offsetWidth}px`;
   }
-  addEventListener('resize', () => fitFootTitle());
-  if (document.fonts) document.fonts.ready.then(fitFootTitle);
+  /* the giant name behind the portrait always spans ~90% of the screen, whatever the language */
+  function fitGiant() {
+    const g = $('#heroGiant');
+    g.style.fontSize = '100px';
+    const w = g.scrollWidth || 1;
+    const target = innerWidth * (innerWidth < 992 ? 0.92 : 0.88);
+    g.style.fontSize = `${(100 * target / w).toFixed(2)}px`;
+  }
+  const fitAll = () => { fitFootTitle(); fitGiant(); };
+  addEventListener('resize', fitAll);
+  if (document.fonts) document.fonts.ready.then(fitAll);
 
   $('#hpBase').src = S.portrait;
   $('#fpImg').src = S.helmetPortrait || S.portrait;
@@ -191,29 +200,75 @@
   const altCv = $('#altCanvas'), altCtx = altCv.getContext('2d');
   const maskCv = document.createElement('canvas'), maskCtx = maskCv.getContext('2d');
   const altImg = new Image(); altImg.src = S.helmet || S.portrait;
-  const trail = Array.from({ length: 14 }, () => ({ x: 0, y: 0 }));
-  let cvW = 0, cvH = 0, cvDpr = 1, R = 0, speed = 0, lastMx = 0, lastMy = 0, blobInit = false;
+  let cvW = 0, cvH = 0, cvDpr = 1, speed = 0, lastMx = 0, lastMy = 0;
+  // The cursor works like a brush: it paints the helmet into a low-res field (1/SC of the size).
+  // The paint slowly evaporates; a noisy threshold makes the edges ragged and lets the strokes
+  // break into pieces as they melt — the way the helmet shows through on landonorris.com.
+  const SC = 4;
+  const fieldCv = document.createElement('canvas'), fieldCtx = fieldCv.getContext('2d');
+  let fW = 1, fH = 1, fImg = null, fPix = null, F = null, painted = false;
+  let bx = null, by = null;                      // previous brush position (grid px)
   function altSize() {
     cvDpr = Math.min(devicePixelRatio || 1, 1.5); cvW = portraitBox.offsetWidth; cvH = portraitBox.offsetHeight;
     altCv.width = maskCv.width = Math.max(1, Math.round(cvW * cvDpr)); altCv.height = maskCv.height = Math.max(1, Math.round(cvH * cvDpr));
+    fW = Math.max(1, Math.ceil(cvW / SC)); fH = Math.max(1, Math.ceil(cvH / SC));
+    fieldCv.width = fW; fieldCv.height = fH;
+    fImg = fieldCtx.createImageData(fW, fH); fPix = new Uint32Array(fImg.data.buffer);
+    F = new Float32Array(fW * fH); bx = by = null;
   }
   altSize(); addEventListener('resize', altSize);
-  function drawBlob(ts, tx, ty, targetR) {
-    if (!blobInit) { trail.forEach((q) => { q.x = tx; q.y = ty; }); blobInit = true; }
-    trail[0].x = lerp(trail[0].x, tx, 0.2); trail[0].y = lerp(trail[0].y, ty, 0.2);
-    for (let i = 1; i < trail.length; i++) { trail[i].x = lerp(trail[i].x, trail[i - 1].x, 0.42); trail[i].y = lerp(trail[i].y, trail[i - 1].y, 0.42); }
-    R = lerp(R, targetR, 0.07);
+
+  function stamp(cx, cy, sig, amt) {
+    const rad = Math.ceil(sig * 2.6), inv = 1 / (2 * sig * sig);
+    const x0 = Math.max(0, Math.floor(cx - rad)), x1 = Math.min(fW - 1, Math.ceil(cx + rad));
+    const y0 = Math.max(0, Math.floor(cy - rad)), y1 = Math.min(fH - 1, Math.ceil(cy + rad));
+    for (let y = y0; y <= y1; y++) {
+      const dy = y - cy, row = y * fW;
+      for (let x = x0; x <= x1; x++) {
+        const dx = x - cx, i = row + x;
+        const v = F[i] + amt * Math.exp(-(dx * dx + dy * dy) * inv);
+        F[i] = v > 1.9 ? 1.9 : v;
+      }
+    }
+    painted = true;
+  }
+  // brush: cx, cy in portrait px (or null = not painting), spd = cursor speed (px / frame)
+  function paintHelmet(ts, cx, cy, spd) {
+    if (!F || !altImg.naturalWidth) return;
+    // 1) the paint evaporates
+    if (painted) { let any = false; for (let i = 0; i < F.length; i++) { const v = F[i] * 0.979; F[i] = v < 0.02 ? 0 : v; if (v >= 0.02) any = true; } painted = any; }
+    // 2) new strokes along the path since the last frame
+    if (cx != null) {
+      const gx = cx / SC, gy = cy / SC;
+      const sig = (cvW * 0.062 / SC) * (1 + Math.min(spd / 35, 1.1));
+      if (bx == null || Math.hypot(gx - bx, gy - by) > fW * 0.6) { bx = gx; by = gy; }
+      const dist = Math.hypot(gx - bx, gy - by), steps = Math.max(1, Math.ceil(dist / (sig * 0.45)));
+      for (let k = 1; k <= steps; k++) stamp(bx + (gx - bx) * k / steps, by + (gy - by) * k / steps, sig, 0.55);
+      stamp(gx, gy, sig, 0.11);                 // resting cursor keeps a patch open
+      bx = gx; by = gy;
+    } else { bx = by = null; }
+
     altCtx.setTransform(1, 0, 0, 1, 0, 0); altCtx.clearRect(0, 0, altCv.width, altCv.height);
-    if (R < 0.6 || !altImg.naturalWidth) return;
+    if (!painted) return;
+    // 3) ragged, liquid edge: the field is compared with a moving noise threshold
+    fPix.fill(0);
+    for (let y = 0; y < fH; y++) {
+      const row = y * fW;
+      for (let x = 0; x < fW; x++) {
+        const f = F[row + x];
+        if (f < 0.12) continue;
+        const v = f + (noise(x * 0.085 + ts * 0.22, y * 0.085 - ts * 0.18) - 0.5) * 0.95
+                    + (noise(x * 0.23 - ts * 0.45 + 40, y * 0.23 + ts * 0.3) - 0.5) * 0.4;
+        if (v < 0.5) continue;
+        const a = v >= 0.64 ? 255 : Math.round(255 * (v - 0.5) / 0.14);
+        fPix[row + x] = (a << 24) >>> 0;
+      }
+    }
+    fieldCtx.putImageData(fImg, 0, 0);
     const m = maskCtx;
-    m.setTransform(cvDpr, 0, 0, cvDpr, 0, 0); m.clearRect(0, 0, cvW, cvH);
-    m.filter = 'blur(7px)'; m.fillStyle = '#000'; m.beginPath();
-    trail.forEach((q, i) => {
-      const k = 1 - i / trail.length;
-      const r = R * (0.3 + 0.7 * Math.pow(k, 0.7)) * (1 + 0.07 * Math.sin(ts * 2.3 + i * 0.9));
-      m.moveTo(q.x + r, q.y); m.arc(q.x, q.y, r, 0, Math.PI * 2);
-    });
-    m.fill(); m.filter = 'none';
+    m.setTransform(1, 0, 0, 1, 0, 0); m.clearRect(0, 0, maskCv.width, maskCv.height);
+    m.imageSmoothingEnabled = true; m.imageSmoothingQuality = 'high';
+    m.drawImage(fieldCv, 0, 0, fW * SC * cvDpr, fH * SC * cvDpr);
     altCtx.drawImage(altImg, 0, 0, altCv.width, altCv.height);
     altCtx.globalCompositeOperation = 'destination-in'; altCtx.drawImage(maskCv, 0, 0); altCtx.globalCompositeOperation = 'source-over';
   }
@@ -276,17 +331,20 @@
       const q = clamp((p - 0.4) / 0.36);
       sig.style.clipPath = `inset(-10% ${((1 - q) * 100).toFixed(2)}% -10% -5%)`;
 
-      // helmet: follows the cursor on desktop; on phones it grows from the face, holds and melts away
-      if (p < 0.08) {
+      // helmet: the cursor paints it on desktop; on phones an invisible brush paints around the face, rests, and paints again
+      if (p < 0.08 && !reduced) {
         const pr = portraitBox.getBoundingClientRect();
-        const ts = time / 1000, auto = !fine;
-        const tx = auto ? pr.width * (0.505 + Math.sin(ts * 0.9) * 0.03) : ptr.x - pr.left;
-        const ty = auto ? pr.height * (0.44 + Math.sin(ts * 1.3) * 0.025) : ptr.y - pr.top;
-        speed = lerp(speed, Math.hypot(ptr.x - lastMx, ptr.y - lastMy), 0.12); lastMx = ptr.x; lastMy = ptr.y;
-        const active = auto ? ((ts + 1.5) % 6) < 3 : ptr.on;
-        const targetR = reduced ? 0 : (active ? (auto ? pr.width * 0.36 : pr.width * 0.21 * (1 + Math.min(speed / 40, 0.45))) : 0);
-        drawBlob(ts, tx, ty, targetR);
-      } else if (R > 0) { R = 0; altCtx.setTransform(1, 0, 0, 1, 0, 0); altCtx.clearRect(0, 0, altCv.width, altCv.height); }
+        const ts = time / 1000;
+        speed = lerp(speed, Math.hypot(ptr.x - lastMx, ptr.y - lastMy), 0.25); lastMx = ptr.x; lastMy = ptr.y;
+        let cx = null, cy = null;
+        if (fine) {
+          if (ptr.on) { cx = ptr.x - pr.left; cy = ptr.y - pr.top; }
+        } else if (((ts + 1) % 5.5) < 2.6) {
+          cx = pr.width * (0.5 + Math.sin(ts * 1.7) * 0.2);
+          cy = pr.height * (0.4 + Math.sin(ts * 3.4) * 0.12);
+        }
+        paintHelmet(ts, cx, cy, fine ? speed : 14);
+      } else if (painted) { F.fill(0); painted = false; altCtx.setTransform(1, 0, 0, 1, 0, 0); altCtx.clearRect(0, 0, altCv.width, altCv.height); }
       if (p < 0.95 && !reduced) lines(time);
     }
 
