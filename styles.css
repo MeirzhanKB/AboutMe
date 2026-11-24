@@ -779,3 +779,18 @@ body.loaded .widget { opacity: 1; translate: 0 0; transition: opacity .25s linea
 .hcard.nda:hover .lock { transform: rotate(-8deg) scale(1.06); }
 .hcard.nda .hc-in { background: repeating-linear-gradient(135deg, #0e0f1d 0 14px, #11132a 14px 28px); }
 .hcard.nda .nda-desc { opacity: 1; translate: 0 0; color: var(--muted-d); }
+
+/* =========================================================
+   Phone fixes (v26)
+   ========================================================= */
+.header { transition: color .5s var(--ease), translate .45s var(--ease); }
+@media (max-width: 991px) {
+  .header.hide { translate: 0 -120%; }
+  .intro { height: 230svh; }
+  .manifesto { padding-top: 3rem; }
+  .break { height: auto; }
+  .break-pin { position: relative; height: 80svh; }
+  .stack-s { padding-top: 6rem; }
+  .stack-script { position: relative; display: block; left: auto; top: auto; translate: none; margin: 1.6rem 0 -1rem 1.2rem; font-size: 6.5rem; line-height: 1; }
+  .stack-row { margin-top: 2.5rem; }
+}

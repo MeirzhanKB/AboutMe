@@ -472,6 +472,7 @@
   const pathsS = $('#paths'), pathsHelmet = $('#pathsHelmet'), pathsFace = $('#pathsFace');
   const fanS = $('#socials');
   let parallaxEls = [];
+  let lastScrollY = scrollY;
 
   function tick(time) {
     if (lenis) lenis.raf(time);
@@ -483,7 +484,7 @@
       const p = clamp(-r.top / (r.height - vh));
       const shrink = 1 - Math.pow(1 - clamp(p / 0.55), 3);
       const ix = (mob ? 10 : 33) * shrink, iy = (mob ? 24 : 21) * shrink;
-      const lift = clamp((p - 0.62) / 0.38);
+      const lift = mob ? 0 : clamp((p - 0.62) / 0.38);
       heroCard.style.clipPath = `inset(${iy.toFixed(2)}% ${ix.toFixed(2)}% ${iy.toFixed(2)}% ${ix.toFixed(2)}% round ${(shrink * 0.6).toFixed(2)}rem)`;
       heroCard.style.transform = `translate3d(0, ${(-lift * vh * 0.34).toFixed(1)}px, 0) scale(${(1 - lift * 0.35).toFixed(3)})`;
       heroCard.style.filter = `grayscale(${clamp(shrink * 1.2).toFixed(2)})`;
@@ -500,13 +501,14 @@
         const pr = portrait.getBoundingClientRect();
         const auto = !fine;
         const ts = time / 1000;
-        const tx = auto ? pr.width * (0.5 + Math.sin(ts * 0.8) * 0.2) : mouse.x - pr.left;
-        const ty = auto ? pr.height * (0.36 + Math.sin(ts * 1.25) * 0.12) : mouse.y - pr.top;
+        // touch screens: the helmet grows from the face like a drop, holds, then melts away (no stray half-reveals)
+        const tx = auto ? pr.width * (0.505 + Math.sin(ts * 0.9) * 0.03) : mouse.x - pr.left;
+        const ty = auto ? pr.height * (0.44 + Math.sin(ts * 1.3) * 0.025) : mouse.y - pr.top;
         const v = Math.hypot(mouse.x - lastMx, mouse.y - lastMy);
         lastMx = mouse.x; lastMy = mouse.y;
         speed = lerp(speed, v, 0.12);
-        const active = auto || mouse.on;
-        const targetR = reduced ? 0 : (active ? pr.width * 0.21 * (1 + Math.min(speed / 40, 0.45)) : 0);
+        const active = auto ? ((ts + 1.5) % 6) < 3 : mouse.on;
+        const targetR = reduced ? 0 : (active ? (auto ? pr.width * 0.36 : pr.width * 0.21 * (1 + Math.min(speed / 40, 0.45))) : 0);
         drawBlob(ts, tx, ty, targetR);
       } else if (R > 0) {
         R = 0;
@@ -558,7 +560,8 @@
     // full-bleed photo opening up
     {
       const r = breakS.getBoundingClientRect();
-      const p = clamp((-r.top + vh * 0.2) / (r.height - vh));
+      // phones: no pin, the photo opens while it scrolls into view
+      const p = mob ? clamp((vh - r.top) / (vh * 0.85)) : clamp((-r.top + vh * 0.2) / (r.height - vh));
       const e = 1 - Math.pow(1 - p, 3);
       breakFrame.style.clipPath = `inset(${(18 * (1 - e)).toFixed(2)}% ${(32 * (1 - e) * (mob ? 0.3 : 1)).toFixed(2)}% ${(18 * (1 - e)).toFixed(2)}% ${(32 * (1 - e) * (mob ? 0.3 : 1)).toFixed(2)}% round ${(1 - e).toFixed(2)}rem)`;
       breakImg.style.transform = `scale(${(1.25 - 0.25 * e).toFixed(3)})`;
@@ -608,6 +611,13 @@
     // over the orange frame of the footer the orange button would vanish -> switch the header to navy
     const fpr = footPanel.getBoundingClientRect(), ftr = footerEl.getBoundingClientRect();
     header.classList.toggle('on-accent', ftr.top <= 40 && fpr.top > 40);
+    // phones: the header hides while scrolling down so it never sits on top of the content
+    if (mob && !document.body.classList.contains('menu-open')) {
+      const dy = y - lastScrollY;
+      if (y < vh * 0.3 || dy < -6) header.classList.remove('hide');
+      else if (dy > 6) header.classList.add('hide');
+    } else header.classList.remove('hide');
+    lastScrollY = y;
 
     requestAnimationFrame(tick);
   }
