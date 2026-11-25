@@ -137,6 +137,7 @@
   if (document.fonts) document.fonts.ready.then(fitAll);
 
   $('#hpBase').src = S.portrait;
+  $('#hpGhost').src = S.helmet || S.portrait;
   $('#fpImg').src = S.helmetPortrait || S.portrait;
 
   document.addEventListener('click', (e) => {
@@ -200,75 +201,51 @@
   const altCv = $('#altCanvas'), altCtx = altCv.getContext('2d');
   const maskCv = document.createElement('canvas'), maskCtx = maskCv.getContext('2d');
   const altImg = new Image(); altImg.src = S.helmet || S.portrait;
-  let cvW = 0, cvH = 0, cvDpr = 1, speed = 0, lastMx = 0, lastMy = 0;
-  // The cursor works like a brush: it paints the helmet into a low-res field (1/SC of the size).
-  // The paint slowly evaporates; a noisy threshold makes the edges ragged and lets the strokes
-  // break into pieces as they melt — the way the helmet shows through on landonorris.com.
-  const SC = 4;
-  const fieldCv = document.createElement('canvas'), fieldCtx = fieldCv.getContext('2d');
-  let fW = 1, fH = 1, fImg = null, fPix = null, F = null, painted = false;
-  let bx = null, by = null;                      // previous brush position (grid px)
+  let cvW = 0, cvH = 0, cvDpr = 1;
   function altSize() {
-    cvDpr = Math.min(devicePixelRatio || 1, 1.5); cvW = portraitBox.offsetWidth; cvH = portraitBox.offsetHeight;
+    cvDpr = Math.min(devicePixelRatio || 1, 2); cvW = portraitBox.offsetWidth; cvH = portraitBox.offsetHeight;
     altCv.width = maskCv.width = Math.max(1, Math.round(cvW * cvDpr)); altCv.height = maskCv.height = Math.max(1, Math.round(cvH * cvDpr));
-    fW = Math.max(1, Math.ceil(cvW / SC)); fH = Math.max(1, Math.ceil(cvH / SC));
-    fieldCv.width = fW; fieldCv.height = fH;
-    fImg = fieldCtx.createImageData(fW, fH); fPix = new Uint32Array(fImg.data.buffer);
-    F = new Float32Array(fW * fH); bx = by = null;
   }
   altSize(); addEventListener('resize', altSize);
 
-  function stamp(cx, cy, sig, amt) {
-    const rad = Math.ceil(sig * 2.6), inv = 1 / (2 * sig * sig);
-    const x0 = Math.max(0, Math.floor(cx - rad)), x1 = Math.min(fW - 1, Math.ceil(cx + rad));
-    const y0 = Math.max(0, Math.floor(cy - rad)), y1 = Math.min(fH - 1, Math.ceil(cy + rad));
-    for (let y = y0; y <= y1; y++) {
-      const dy = y - cy, row = y * fW;
-      for (let x = x0; x <= x1; x++) {
-        const dx = x - cx, i = row + x;
-        const v = F[i] + amt * Math.exp(-(dx * dx + dy * dy) * inv);
-        F[i] = v > 1.9 ? 1.9 : v;
-      }
-    }
-    painted = true;
-  }
-  // brush: cx, cy in portrait px (or null = not painting), spd = cursor speed (px / frame)
-  function paintHelmet(ts, cx, cy, spd) {
-    if (!F || !altImg.naturalWidth) return;
-    // 1) the paint evaporates
-    if (painted) { let any = false; for (let i = 0; i < F.length; i++) { const v = F[i] * 0.979; F[i] = v < 0.02 ? 0 : v; if (v >= 0.02) any = true; } painted = any; }
-    // 2) new strokes along the path since the last frame
+  // Like landonorris.com: the cursor leaves a thick ribbon with round ends and razor-sharp edges.
+  // The ribbon follows the exact path of the mouse; its tail gets shorter as old points expire.
+  const LIFE = 1.05;                         // seconds a point of the ribbon lives
+  const ribbon = [];                         // { x, y, t } in portrait px
+  let sx = null, sy = null, headR = 0, wasOn = false;
+  function paintHelmet(now, cx, cy) {
+    const t = now / 1000;
+    const W = cvW * 0.15;                    // ribbon width ≈ 40% of the face
     if (cx != null) {
-      const gx = cx / SC, gy = cy / SC;
-      const sig = (cvW * 0.062 / SC) * (1 + Math.min(spd / 35, 1.1));
-      if (bx == null || Math.hypot(gx - bx, gy - by) > fW * 0.6) { bx = gx; by = gy; }
-      const dist = Math.hypot(gx - bx, gy - by), steps = Math.max(1, Math.ceil(dist / (sig * 0.45)));
-      for (let k = 1; k <= steps; k++) stamp(bx + (gx - bx) * k / steps, by + (gy - by) * k / steps, sig, 0.55);
-      stamp(gx, gy, sig, 0.11);                 // resting cursor keeps a patch open
-      bx = gx; by = gy;
-    } else { bx = by = null; }
+      if (sx == null || !wasOn) { sx = cx; sy = cy; }
+      sx += (cx - sx) * 0.38; sy += (cy - sy) * 0.38;     // a touch of smoothing, the ribbon stays glued to the cursor
+      const last = ribbon[ribbon.length - 1];
+      if (!last || Math.hypot(sx - last.x, sy - last.y) > 3) ribbon.push({ x: sx, y: sy, t });
+      else last.t = t;                                     // resting cursor: the head stays open
+      headR += (W / 2 - headR) * 0.25;
+    } else {
+      headR += (0 - headR) * 0.12;
+    }
+    wasOn = cx != null;
+    while (ribbon.length && t - ribbon[0].t > LIFE) ribbon.shift();
 
     altCtx.setTransform(1, 0, 0, 1, 0, 0); altCtx.clearRect(0, 0, altCv.width, altCv.height);
-    if (!painted) return;
-    // 3) ragged, liquid edge: the field is compared with a moving noise threshold
-    fPix.fill(0);
-    for (let y = 0; y < fH; y++) {
-      const row = y * fW;
-      for (let x = 0; x < fW; x++) {
-        const f = F[row + x];
-        if (f < 0.12) continue;
-        const v = f + (noise(x * 0.085 + ts * 0.22, y * 0.085 - ts * 0.18) - 0.5) * 0.95
-                    + (noise(x * 0.23 - ts * 0.45 + 40, y * 0.23 + ts * 0.3) - 0.5) * 0.4;
-        if (v < 0.5) continue;
-        const a = v >= 0.64 ? 255 : Math.round(255 * (v - 0.5) / 0.14);
-        fPix[row + x] = (a << 24) >>> 0;
-      }
-    }
-    fieldCtx.putImageData(fImg, 0, 0);
+    if (!altImg.naturalWidth || (!ribbon.length && headR < 0.5)) return;
+
     const m = maskCtx;
-    m.setTransform(1, 0, 0, 1, 0, 0); m.clearRect(0, 0, maskCv.width, maskCv.height);
-    m.imageSmoothingEnabled = true; m.imageSmoothingQuality = 'high';
-    m.drawImage(fieldCv, 0, 0, fW * SC * cvDpr, fH * SC * cvDpr);
+    m.setTransform(cvDpr, 0, 0, cvDpr, 0, 0); m.clearRect(0, 0, cvW, cvH);
+    m.fillStyle = m.strokeStyle = '#000'; m.lineCap = 'round'; m.lineJoin = 'round';
+    // the ribbon: constant width, the very end gets a little thinner as it expires
+    for (let i = 1; i < ribbon.length; i++) {
+      const p0 = ribbon[i - 1], p1 = ribbon[i];
+      const age = Math.min(1, (t - p0.t) / LIFE);
+      m.lineWidth = W * (age < 0.75 ? 1 : 1 - (age - 0.75) / 0.25 * 0.6);
+      m.beginPath(); m.moveTo(p0.x, p0.y); m.lineTo(p1.x, p1.y); m.stroke();
+    }
+    // the head under the cursor (also after the mouse stops) — melts away when the cursor leaves
+    const h = ribbon[ribbon.length - 1];
+    if (h && headR > 0.5) { m.beginPath(); m.arc(h.x, h.y, headR, 0, Math.PI * 2); m.fill(); }
+
     altCtx.drawImage(altImg, 0, 0, altCv.width, altCv.height);
     altCtx.globalCompositeOperation = 'destination-in'; altCtx.drawImage(maskCv, 0, 0); altCtx.globalCompositeOperation = 'source-over';
   }
@@ -331,20 +308,19 @@
       const q = clamp((p - 0.4) / 0.36);
       sig.style.clipPath = `inset(-10% ${((1 - q) * 100).toFixed(2)}% -10% -5%)`;
 
-      // helmet: the cursor paints it on desktop; on phones an invisible brush paints around the face, rests, and paints again
+      // helmet ribbon: follows the cursor on desktop; on phones an invisible finger draws loops over the face, rests, and draws again
       if (p < 0.08 && !reduced) {
         const pr = portraitBox.getBoundingClientRect();
         const ts = time / 1000;
-        speed = lerp(speed, Math.hypot(ptr.x - lastMx, ptr.y - lastMy), 0.25); lastMx = ptr.x; lastMy = ptr.y;
         let cx = null, cy = null;
         if (fine) {
           if (ptr.on) { cx = ptr.x - pr.left; cy = ptr.y - pr.top; }
-        } else if (((ts + 1) % 5.5) < 2.6) {
-          cx = pr.width * (0.5 + Math.sin(ts * 1.7) * 0.2);
-          cy = pr.height * (0.4 + Math.sin(ts * 3.4) * 0.12);
+        } else if (((ts + 1) % 5) < 2.6) {
+          cx = pr.width * (0.5 + Math.sin(ts * 2.1) * 0.17);
+          cy = pr.height * (0.4 + Math.sin(ts * 4.2) * 0.1);
         }
-        paintHelmet(ts, cx, cy, fine ? speed : 14);
-      } else if (painted) { F.fill(0); painted = false; altCtx.setTransform(1, 0, 0, 1, 0, 0); altCtx.clearRect(0, 0, altCv.width, altCv.height); }
+        paintHelmet(time, cx, cy);
+      } else if (ribbon.length || headR > 0.5) { ribbon.length = 0; headR = 0; altCtx.setTransform(1, 0, 0, 1, 0, 0); altCtx.clearRect(0, 0, altCv.width, altCv.height); }
       if (p < 0.95 && !reduced) lines(time);
     }
 
