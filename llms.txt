@@ -1,0 +1,38 @@
+# Meirzhan — developer of AI sales bots and websites (Kazakhstan)
+
+> Meirzhan (Мейржан / Мейіржан) is a developer from Kazakhstan with 6 years in IT. He builds AI sales managers and AI support bots for WhatsApp that answer customers 24/7 in Russian and Kazakh, qualify leads and pass ready orders to human managers and CRM. He also builds business websites and online stores. Contact: mkabylzhanov@bk.ru · Instagram @nevvspominal.
+
+## What he can build
+
+- AI sales manager for WhatsApp: answers customers around the clock, asks clarifying questions, picks the right product from the catalogue, checks stock, creates an order and hands the hot lead to a manager with the full conversation.
+- Bilingual bots: Russian and Kazakh (the bot detects the customer's language); English on request.
+- AI support bots: answer hundreds of chats, use a knowledge base and video instructions, escalate hard cases to people.
+- Repeat sales: reminders about consumables (e.g. filter cartridge replacement), follow-ups, re-orders.
+- CRM integration: leads go to the client's CRM, a Google Sheet or a WhatsApp message to a manager with name, city and request.
+- Websites for companies: catalogue, production story, quote requests, KZ/RU languages.
+- Online stores: catalogue, cart and online payment.
+- Web apps (e.g. a language-learning app with short lessons, XP and streaks).
+- Internal systems and automation for companies (work under NDA).
+
+## How he works
+
+1. Discovery — find where customers and leads get lost, decide what the bot or site should do.
+2. Prototype — a working version on the client's real questions and products.
+3. Launch — connect to WhatsApp, the website and CRM; show managers how to take leads from the bot.
+4. Support — monitor conversations, retrain the bot, improve answers.
+
+He sets up, launches and maintains everything himself — the client does not need their own developer or server. Projects can start small (one scenario) and grow.
+
+## Public work
+
+- https://aquaatom.kz/ — website of a Kazakh water-filter manufacturer.
+- https://filterstore.kz/ — online store of parts and consumables for water vending machines.
+- AI bot projects for clients are private and are discussed only in person.
+
+## Tech
+
+Python, OpenAI, Claude, WhatsApp API, Telegram, Node.js, React, FastAPI, PostgreSQL, Docker.
+
+## Off the clock
+
+Formula 1 is his hobby: he watches the races, admires the cars and sometimes plays the F1 game. He does not work in motorsport.

@@ -1,0 +1,62 @@
+/* =========================================================
+   Extras: cursor spotlight · boot screen · calculator
+   ========================================================= */
+
+/* 1. spotlight — a soft blue glow that trails the cursor over the dark page */
+.spot { position: fixed; left: 0; top: 0; z-index: 40; width: 46rem; height: 46rem; margin: -23rem 0 0 -23rem; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(77,91,255,.13), rgba(77,91,255,.05) 45%, rgba(77,91,255,0) 100%);
+  mix-blend-mode: screen; opacity: 0; transition: opacity .6s; will-change: transform; }
+.spot.on { opacity: 1; }
+
+/* 2. boot screen */
+html.booted .boot { display: none; }
+html.booting, html.booting body { overflow: hidden; }
+.boot { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: #0B0C19; color: #9EA2BE;
+  transition: clip-path .85s cubic-bezier(.76,0,.24,1); clip-path: inset(0 0 0 0); }
+.boot.done { clip-path: inset(0 0 100% 0); }
+.boot-in { width: min(30rem, 86vw); }
+.boot-log { margin: 0 0 1.2rem; min-height: 8.5em; font: 500 .9rem/1.7 ui-monospace, "SFMono-Regular", Consolas, monospace; white-space: pre-wrap; }
+.boot-log span { animation: boot-line .25s ease both; }
+.boot-log .ok { color: #F6F1EA; }
+.boot-log .ok::after { content: "_"; color: #FF5A1F; animation: boot-caret .7s steps(1) infinite; }
+@keyframes boot-line { from { opacity: 0; } }
+@keyframes boot-caret { 50% { opacity: 0; } }
+.boot-bar { height: 2px; background: #1F2242; overflow: hidden; }
+.boot-bar i { display: block; height: 100%; background: #FF5A1F; transform: scaleX(0); transform-origin: left; transition: transform .2s ease; }
+
+/* 3. calculator */
+.calc { position: relative; padding: 9rem var(--pad) 9rem; background: #0B0C19; color: var(--cream); border-top: 1px solid #1C1F38; }
+.calc-head { max-width: 48rem; }
+.calc .h-title { margin-top: 1.2rem; font-size: 4.2rem; }
+.calc-p { margin: 1.4rem 0 0; color: #9EA2BE; max-width: 34rem; line-height: 1.55; }
+.calc-body { display: grid; grid-template-columns: 1.1fr 1fr; gap: 4rem; margin-top: 4rem; align-items: stretch; }
+.calc-fields { display: flex; flex-direction: column; gap: 1.8rem; }
+.cf { display: block; }
+.cf-top { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: .75rem; font-size: .95rem; color: #C9CCE4; }
+.cf-top b { color: var(--cream); font-weight: 700; font-variant-numeric: tabular-nums; }
+.cf input[type=range] { --p: 50%; width: 100%; height: 1.4rem; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.cf input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 99px; background: linear-gradient(90deg, #FF5A1F var(--p), #262A48 var(--p)); }
+.cf input[type=range]::-moz-range-track { height: 4px; border-radius: 99px; background: linear-gradient(90deg, #FF5A1F var(--p), #262A48 var(--p)); }
+.cf input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 1.25rem; height: 1.25rem; margin-top: calc(2px - .625rem); border-radius: 50%; background: var(--cream); border: 3px solid #FF5A1F; box-shadow: 0 0 0 .35rem rgba(255,90,31,.15); transition: box-shadow .2s; }
+.cf input[type=range]::-moz-range-thumb { width: 1rem; height: 1rem; border-radius: 50%; background: var(--cream); border: 3px solid #FF5A1F; }
+.cf input[type=range]:hover::-webkit-slider-thumb, .cf input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 .55rem rgba(255,90,31,.22); }
+.cf input[type=range]:focus-visible { outline: none; }
+.calc-out { position: relative; display: flex; flex-direction: column; justify-content: center; padding: 2.6rem; border-radius: 1.2rem; overflow: hidden;
+  background: radial-gradient(30rem 22rem at 85% 0%, rgba(255,90,31,.22), rgba(255,90,31,0) 70%), #14162B; border: 1px solid #262A48; }
+.calc-out-label { font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #9EA2BE; }
+.calc-sum { margin-top: .6rem; font-size: 4.6rem; line-height: 1; font-weight: 820; font-variation-settings: "wdth" 80; letter-spacing: -.03em; color: #FF5A1F; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.calc-per { margin-top: .4rem; font-size: 1rem; color: #C9CCE4; }
+.calc-clients { margin: 1.8rem 0 0; padding-top: 1.4rem; border-top: 1px solid #262A48; color: #C9CCE4; }
+.calc-clients b { color: var(--cream); font-size: 1.4rem; }
+.calc-cta { align-self: flex-start; margin-top: 1.8rem; }
+.calc-note { margin-top: 1rem; font-size: .72rem; color: #6B6F8E; }
+
+@media (max-width: 991px) {
+  .spot { display: none; }
+  .calc { padding: 5.5rem var(--pad); }
+  .calc .h-title { font-size: 2.4rem; }
+  .calc-body { grid-template-columns: 1fr; gap: 2.4rem; margin-top: 2.6rem; }
+  .calc-out { padding: 1.8rem 1.4rem; }
+  .calc-sum { font-size: 2.6rem; white-space: normal; }
+  .calc-cta { align-self: stretch; justify-content: center; white-space: normal; height: auto; min-height: 2.8rem; padding: .7rem 1rem; text-align: center; }
+}

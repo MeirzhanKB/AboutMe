@@ -13,7 +13,6 @@ window.SITE = {
   defaultLang: "ru",
 
   portrait: "photos/me-base.webp",
-  helmet: "photos/me-helmet.webp",        // тот же портрет в шлеме — проявляется под курсором
 
   // --- Первый экран -----------------------------------------
   hero: {
@@ -24,8 +23,8 @@ window.SITE = {
       kz: "WhatsApp-та клиенттерге өзі жауап беретін, өтінімдерді менеджерлерге беретін боттар және сататын сайттар жасаймын."
     },
     status: { ru: "Открыт к проектам", en: "Open to projects", kz: "Жобаларға ашықпын" },
-    hint: { ru: "Наведи на лицо — F1 esports, моё хобби", en: "Hover my face — F1 esports, my hobby", kz: "Бетіме апар — F1 esports, хоббиім" },
-    hintTouch: { ru: "Шлем — это F1 esports, моё хобби", en: "The helmet is F1 esports, my hobby", kz: "Дулыға — F1 esports, хоббиім" }
+    hint: { ru: "Наведи на лицо — так меня видит ИИ", en: "Hover my face — how AI sees me", kz: "Бетіме апар — ЖИ мені осылай көреді" },
+    hintTouch: { ru: "Так меня видит ИИ", en: "How AI sees me", kz: "ЖИ мені осылай көреді" }
   },
 
   // --- Бегущие строки за карточкой (видны при прокрутке) ---
@@ -49,15 +48,16 @@ window.SITE = {
       { big: "24/7", label: { ru: "боты на связи", en: "bots online", kz: "боттар байланыста" } },
       { big: "RU · KZ", label: { ru: "языки ботов", en: "bot languages", kz: "бот тілдері" } }
     ],
-    hobby: { ru: "Вне работы — Формула 1 и гонки в F1 esports.", en: "Off the clock — Formula 1 and racing in F1 esports.", kz: "Жұмыстан тыс — Формула 1 және F1 esports жарыстары." }
+    hobby: { ru: "Вне работы — Формула 1: смотрю гонки, любуюсь болидами и иногда гоняю в F1.", en: "Off the clock — Formula 1: I watch the races, admire the cars and sometimes race in the F1 game.", kz: "Жұмыстан тыс — Формула 1: жарыстарды көремін, болидтерге қызығамын, кейде F1 ойынында жарысамын." }
   },
 
   // --- Проекты (тёмная сетка с фильтрами). cat — id фильтра; link "" — без ссылки ---
+  // hidden: true — проект НЕ показывается людям на странице (AI-боты). Убери hidden, чтобы вернуть карточку.
   projectsTitle: { ru: "Мои *проекты*", en: "My *projects*", kz: "Менің *жобаларым*" },
   projects: [
     {
       title: { ru: "Aqua Atom — AI-менеджер продаж", en: "Aqua Atom — AI Sales Manager", kz: "Aqua Atom — ЖИ сату менеджері" },
-      cat: "ai", tags: ["AI", "WhatsApp", "Sales"],
+      hidden: true, cat: "ai", tags: ["AI", "WhatsApp", "Sales"],
       desc: {
         ru: "ИИ-менеджер отвечает клиентам в WhatsApp 24/7: подбирает фильтры и комплектующие, проверяет наличие и оформляет заявки.",
         en: "An AI manager answers clients on WhatsApp 24/7: picks filters and parts, checks stock and creates orders.",
@@ -67,13 +67,13 @@ window.SITE = {
     },
     {
       title: { ru: "Живая Вода — AI-продажи", en: "Zhivaya Voda — AI Sales", kz: "Живая Вода — ЖИ сату" },
-      cat: "ai", tags: ["AI", "WhatsApp", "CRM"],
+      hidden: true, cat: "ai", tags: ["AI", "WhatsApp", "CRM"],
       desc: { ru: "Бот отвечает клиентам в WhatsApp и передаёт лиды менеджерам.", en: "The bot answers clients on WhatsApp and hands leads to managers.", kz: "Бот WhatsApp-та клиенттерге жауап беріп, лидтерді менеджерлерге береді." },
       image: "photos/projects/zhivaya-voda-sales.jpg", link: ""
     },
     {
       title: { ru: "Живая Вода — Техподдержка", en: "Zhivaya Voda — Support", kz: "Живая Вода — Техқолдау" },
-      cat: "ai", tags: ["AI", "WhatsApp", "Support"],
+      hidden: true, cat: "ai", tags: ["AI", "WhatsApp", "Support"],
       desc: { ru: "ИИ разбирает сотни чатов, база знаний и видеоинструкции.", en: "AI handles hundreds of chats, with a knowledge base and video guides.", kz: "ЖИ жүздеген чатты өңдейді, білім базасы мен бейненұсқаулықтар." },
       image: "photos/projects/zhivaya-voda-support.jpg", link: ""
     },
@@ -119,7 +119,33 @@ window.SITE = {
   // --- Футер «Всегда в деле» ---------------------------------
   motto: { ru: "Всегда *в* деле.", en: "Always *in* the game.", kz: "Әрқашан *іс* үстінде." },
   stack: ["Python", "OpenAI", "Claude", "WhatsApp API", "Telegram", "Node.js", "React", "FastAPI", "PostgreSQL", "Docker"],
-  helmetPortrait: "photos/me-helmet-front.webp",
+  footPortrait: "photos/me-base.webp",
+
+  // --- Калькулятор «сколько заявок теряется ночью» -------------
+  calc: {
+    label: { ru: "Калькулятор", en: "Calculator", kz: "Калькулятор" },
+    title: { ru: "Сколько денег уходит, *пока менеджеры спят*", en: "How much money leaves *while your managers sleep*", kz: "Менеджерлер ұйықтағанда *қанша ақша кетеді*" },
+    text: { ru: "Подвигайте ползунки под свой бизнес — посчитаем, сколько клиентов не дожидаются ответа вечером, ночью и в выходные.", en: "Move the sliders to match your business — we'll count how many clients don't wait for an answer in the evening, at night and on weekends.", kz: "Сырғытпаларды бизнесіңізге қарай жылжытыңыз — кешке, түнде және демалыста жауап күтпей кететін клиенттерді есептейміз." },
+    fields: [
+      { id: "leads", min: 10, max: 500, step: 5, value: 60, unit: "", label: { ru: "Обращений в день", en: "Inquiries per day", kz: "Күніне өтініштер" } },
+      { id: "off", min: 10, max: 70, step: 5, value: 35, unit: "%", label: { ru: "Пишут в нерабочее время", en: "Write outside working hours", kz: "Жұмыстан тыс уақытта жазады" } },
+      { id: "lost", min: 10, max: 90, step: 5, value: 50, unit: "%", label: { ru: "Из них не дожидаются ответа", en: "Of them don't wait for a reply", kz: "Олардың жауап күтпейтіні" } },
+      { id: "conv", min: 2, max: 50, step: 1, value: 15, unit: "%", label: { ru: "Покупают после ответа", en: "Buy after getting a reply", kz: "Жауаптан кейін сатып алады" } },
+      { id: "check", min: 5000, max: 500000, step: 5000, value: 30000, unit: "₸", label: { ru: "Средний чек", en: "Average order", kz: "Орташа чек" } }
+    ],
+    resultLabel: { ru: "Теряете примерно", en: "You lose about", kz: "Шамамен жоғалтасыз" },
+    perMonth: { ru: "в месяц", en: "per month", kz: "айына" },
+    clients: { ru: "клиентов в месяц уходят без ответа", en: "clients a month leave without a reply", kz: "клиент айына жауапсыз кетеді" },
+    cta: { ru: "Хочу, чтобы бот закрыл эти заявки", en: "I want a bot to close these leads", kz: "Осы өтінімдерді бот жапсын" },
+    note: { ru: "Это оценка по вашим цифрам, а не обещание результата.", en: "An estimate from your numbers, not a promise of results.", kz: "Бұл сіздің сандарыңыз бойынша бағалау, нәтиже уәдесі емес." }
+  },
+
+  // --- Загрузка «запуск системы» (показывается один раз за визит) ---
+  boot: {
+    ru: ["инициализация meirzhan.dev", "ai_sales_team ……… ok", "websites ……… ok", "whatsapp ……… подключено", "готово"],
+    en: ["initialising meirzhan.dev", "ai_sales_team ……… ok", "websites ……… ok", "whatsapp ……… connected", "ready"],
+    kz: ["meirzhan.dev іске қосылуда", "ai_sales_team ……… ok", "websites ……… ok", "whatsapp ……… қосылды", "дайын"]
+  },
 
   // --- Контакты (низ сайта) ---------------------------------
   contact: {

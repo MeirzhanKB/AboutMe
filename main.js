@@ -55,7 +55,7 @@
 
     // projects grid
     $('#projTitle').innerHTML = mixed(t(S.projectsTitle));
-    const projects = S.projects || [];
+    const projects = (S.projects || []).filter((p) => !p.hidden);   // AI bots are hidden from people (described for AI search in llms.txt)
     const filters = (S.projectFilters || []).filter((f) => f.id === 'all' || projects.some((p) => p.cat === f.id));
     $('#pfilters').innerHTML = filters.map((f) => {
       const n = f.id === 'all' ? projects.length : projects.filter((p) => p.cat === f.id).length;
@@ -137,8 +137,7 @@
   if (document.fonts) document.fonts.ready.then(fitAll);
 
   $('#hpBase').src = S.portrait;
-  $('#hpGhost').src = S.helmet || S.portrait;
-  $('#fpImg').src = S.helmetPortrait || S.portrait;
+  $('#fpImg').src = S.footPortrait || S.portrait;
 
   document.addEventListener('click', (e) => {
     const b = e.target.closest('.lang button');
@@ -196,17 +195,94 @@
   addEventListener('pointermove', (e) => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; if (fine) { const r = cv.getBoundingClientRect(); mouse.tx = e.clientX - r.left; mouse.ty = e.clientY - r.top; } }, { passive: true });
   document.addEventListener('pointerleave', () => { ptr.on = false; });
 
-  /* ---------- Helmet under the cursor: a soft liquid blob cut out of the helmet photo ---------- */
+  /* ---------- Under the cursor: the portrait rebuilt from code characters ("how AI sees me") ---------- */
   const portraitBox = $('#heroPortrait');
   const altCv = $('#altCanvas'), altCtx = altCv.getContext('2d');
   const maskCv = document.createElement('canvas'), maskCtx = maskCv.getContext('2d');
-  const altImg = new Image(); altImg.src = S.helmet || S.portrait;
+  // "How AI sees me": the portrait is rebuilt from code characters; the cursor ribbon reveals it
+  const altImg = new Image(); altImg.src = S.portrait;
+  const asciiCv = document.createElement('canvas'), asciiCtx = asciiCv.getContext('2d');
+  const asciiBase = document.createElement('canvas'), asciiBaseCtx = asciiBase.getContext('2d');
+  const RAMP = '.:-=+*x#%@';                     // dark → bright
+  const CODE = '01<>/{}[]=+;:$#*';
+  let aCols = 0, aRows = 0, aCell = 8, aLum = null, aAlpha = null, asciiReady = false, lastScramble = 0;
+  function buildAscii() {
+    if (!altImg.naturalWidth || !cvW) return;
+    aCell = cvW < 560 ? 7 : 9;
+    aCols = Math.ceil(cvW / aCell); aRows = Math.ceil(cvH / aCell);
+    const sm = document.createElement('canvas'); sm.width = aCols; sm.height = aRows;
+    const sc = sm.getContext('2d', { willReadFrequently: true });
+    // the portrait is drawn the same way as the <img> (contain, bottom) so the characters line up with the face
+    const ar = altImg.naturalWidth / altImg.naturalHeight;
+    let dw = aCols, dh = aCols / ar; if (dh > aRows) { dh = aRows; dw = dh * ar; }
+    sc.drawImage(altImg, (aCols - dw) / 2, aRows - dh, dw, dh);
+    const d = sc.getImageData(0, 0, aCols, aRows).data;
+    aLum = new Float32Array(aCols * aRows); aAlpha = new Uint8Array(aCols * aRows);
+    for (let i = 0; i < aCols * aRows; i++) {
+      aLum[i] = (0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]) / 255;
+      aAlpha[i] = d[i * 4 + 3];
+    }
+    // contrast stretch so the face reads well in characters
+    let lo = 1, hi = 0;
+    for (let i = 0; i < aLum.length; i++) if (aAlpha[i] > 128) { lo = Math.min(lo, aLum[i]); hi = Math.max(hi, aLum[i]); }
+    for (let i = 0; i < aLum.length; i++) { const v = Math.min(1, Math.max(0, (aLum[i] - lo) / Math.max(0.01, hi - lo))); aLum[i] = Math.pow(v, 1.7); }
+    asciiBase.width = asciiCv.width = altCv.width; asciiBase.height = asciiCv.height = altCv.height;
+    const c = asciiBaseCtx;
+    c.setTransform(cvDpr, 0, 0, cvDpr, 0, 0);
+    // underneath: the real face, darkened and washed in electric blue — the characters sit on top of it
+    { const ar2 = altImg.naturalWidth / altImg.naturalHeight; let w2 = cvW, h2 = cvW / ar2; if (h2 > cvH) { h2 = cvH; w2 = h2 * ar2; }
+      c.drawImage(altImg, (cvW - w2) / 2, cvH - h2, w2, h2); }
+    c.globalCompositeOperation = 'source-atop';
+    c.fillStyle = 'rgba(22,28,96,0.58)'; c.fillRect(0, 0, cvW, cvH);
+    c.fillStyle = 'rgba(140,149,255,0.07)';                // faint scanlines, only on the silhouette
+    for (let y = 0; y < cvH; y += 3) c.fillRect(0, y, cvW, 1);
+    c.globalCompositeOperation = 'source-over';
+    c.font = `700 ${aCell * 1.3}px ui-monospace, "SFMono-Regular", Consolas, monospace`;
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (let y = 0; y < aRows; y++) for (let x = 0; x < aCols; x++) drawCell(c, x, y, false);
+    asciiReady = true;
+  }
+  function drawCell(c, x, y, scramble) {
+    const i = y * aCols + x;
+    if (aAlpha[i] < 60) return;
+    const L = aLum[i];
+    if (!scramble && L < 0.08) return;
+    const ch = scramble ? CODE[(Math.random() * CODE.length) | 0] : RAMP[Math.min(RAMP.length - 1, Math.round(L * (RAMP.length - 1)))];
+    if (ch === ' ') return;
+    // colour: deep blue in the shadows → electric blue → warm white in the highlights, a few orange sparks
+    const k = L;
+    const r = Math.round(77 + (246 - 77) * k), g = Math.round(91 + (241 - 91) * k), b = Math.round(255 + (234 - 255) * k);
+    c.fillStyle = scramble ? '#FF5A1F' : `rgba(${r},${g},${b},${0.6 + 0.4 * k})`;
+    c.fillText(ch, x * aCell + aCell / 2, y * aCell + aCell / 2 + 0.5);
+  }
+  function frameAscii(now) {
+    if (!asciiReady) buildAscii();
+    if (!asciiReady) return false;
+    const c = asciiCtx;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.drawImage(asciiBase, 0, 0);
+    // a few characters flicker into code every frame — it feels alive, like data streaming
+    if (now - lastScramble > 60) {
+      lastScramble = now;
+      c.setTransform(cvDpr, 0, 0, cvDpr, 0, 0);
+      c.font = `700 ${aCell * 1.3}px ui-monospace, "SFMono-Regular", Consolas, monospace`;
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      for (let n = 0; n < 60; n++) {
+        const x = (Math.random() * aCols) | 0, y = (Math.random() * aRows) | 0;
+        if (aAlpha[y * aCols + x] < 60) continue;
+        c.drawImage(asciiBase, x * aCell * cvDpr, y * aCell * cvDpr, aCell * cvDpr, aCell * cvDpr, x * aCell, y * aCell, aCell, aCell);
+        drawCell(c, x, y, true);
+      }
+    }
+    return true;
+  }
+  altImg.addEventListener('load', () => { asciiReady = false; });
   let cvW = 0, cvH = 0, cvDpr = 1;
   function altSize() {
     cvDpr = Math.min(devicePixelRatio || 1, 2); cvW = portraitBox.offsetWidth; cvH = portraitBox.offsetHeight;
     altCv.width = maskCv.width = Math.max(1, Math.round(cvW * cvDpr)); altCv.height = maskCv.height = Math.max(1, Math.round(cvH * cvDpr));
   }
-  altSize(); addEventListener('resize', altSize);
+  altSize(); addEventListener('resize', () => { altSize(); asciiReady = false; });
 
   // Like landonorris.com: the cursor leaves a thick ribbon with round ends and razor-sharp edges.
   // The ribbon follows the exact path of the mouse; its tail gets shorter as old points expire.
@@ -231,6 +307,7 @@
 
     altCtx.setTransform(1, 0, 0, 1, 0, 0); altCtx.clearRect(0, 0, altCv.width, altCv.height);
     if (!altImg.naturalWidth || (!ribbon.length && headR < 0.5)) return;
+    if (!frameAscii(now)) return;
 
     const m = maskCtx;
     m.setTransform(cvDpr, 0, 0, cvDpr, 0, 0); m.clearRect(0, 0, cvW, cvH);
@@ -246,7 +323,7 @@
     const h = ribbon[ribbon.length - 1];
     if (h && headR > 0.5) { m.beginPath(); m.arc(h.x, h.y, headR, 0, Math.PI * 2); m.fill(); }
 
-    altCtx.drawImage(altImg, 0, 0, altCv.width, altCv.height);
+    altCtx.drawImage(asciiCv, 0, 0, altCv.width, altCv.height);
     altCtx.globalCompositeOperation = 'destination-in'; altCtx.drawImage(maskCv, 0, 0); altCtx.globalCompositeOperation = 'source-over';
   }
   function lines(time) {
@@ -308,7 +385,7 @@
       const q = clamp((p - 0.4) / 0.36);
       sig.style.clipPath = `inset(-10% ${((1 - q) * 100).toFixed(2)}% -10% -5%)`;
 
-      // helmet ribbon: follows the cursor on desktop; on phones an invisible finger draws loops over the face, rests, and draws again
+      // code-portrait ribbon: follows the cursor on desktop; on phones an invisible finger draws loops over the face, rests, and draws again
       if (p < 0.08 && !reduced) {
         const pr = portraitBox.getBoundingClientRect();
         const ts = time / 1000;

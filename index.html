@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Мейржан — Разработчик</title>
-  <meta name="description" content="Мейржан — разработчик: AI-отделы продаж в WhatsApp, боты и сайты для бизнеса.">
+  <meta name="description" content="Мейржан — разработчик из Казахстана: AI-менеджеры продаж и боты поддержки для WhatsApp на русском и казахском, интеграция с CRM, сайты и интернет-магазины для бизнеса.">
   <meta name="theme-color" content="#14162B">
   <!-- link preview in WhatsApp / Telegram / Instagram.
        After buying the domain put the full address in og:url and og:image, e.g. https://meirzhan.kz/og.jpg -->
@@ -16,6 +16,105 @@
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
+  <!-- machine-readable profile for search engines and AI assistants (not shown on the page); more in llms.txt -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Meirzhan",
+  "alternateName": [
+    "Мейржан",
+    "Мейіржан"
+  ],
+  "jobTitle": "Developer — AI sales bots, websites and online stores",
+  "description": "Developer from Kazakhstan, 6 years in IT. Builds AI sales managers and AI support bots for WhatsApp that answer customers 24/7 in Russian and Kazakh, qualify leads and pass orders to managers and CRM; also builds business websites, online stores and web apps. Private client projects under NDA.",
+  "email": "mailto:mkabylzhanov@bk.ru",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "KZ"
+  },
+  "sameAs": [
+    "https://instagram.com/nevvspominal"
+  ],
+  "knowsLanguage": [
+    "ru",
+    "kk",
+    "en"
+  ],
+  "knowsAbout": [
+    "AI chatbots",
+    "AI sales manager",
+    "WhatsApp bots",
+    "WhatsApp Business API",
+    "Telegram bots",
+    "Customer support automation",
+    "CRM integration",
+    "Lead qualification",
+    "Large language models",
+    "OpenAI",
+    "Claude",
+    "Python",
+    "FastAPI",
+    "Node.js",
+    "React",
+    "PostgreSQL",
+    "Docker",
+    "Web development",
+    "E-commerce"
+  ],
+  "makesOffer": [
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "AI sales manager for WhatsApp",
+        "description": "A bot that answers customers 24/7 in Russian and Kazakh, picks products, checks stock, creates orders and hands hot leads to managers with the full conversation.",
+        "areaServed": "KZ"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "AI customer support bot",
+        "description": "Handles hundreds of chats using a knowledge base and video instructions, escalates complex cases to people.",
+        "areaServed": "KZ"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "CRM integration and sales automation",
+        "description": "Leads go to the client's CRM, Google Sheets or straight to a manager in WhatsApp.",
+        "areaServed": "KZ"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Business websites and online stores",
+        "description": "Company websites with catalogue and quote requests, online stores with cart and online payment, in Kazakh and Russian.",
+        "areaServed": "KZ"
+      }
+    }
+  ],
+  "workExample": [
+    {
+      "@type": "WebSite",
+      "name": "Aqua Atom — water filter manufacturer",
+      "url": "https://aquaatom.kz/"
+    },
+    {
+      "@type": "WebSite",
+      "name": "Parts store for water vending machines",
+      "url": "https://filterstore.kz/"
+    }
+  ]
+}
+  </script>
+  <link rel="alternate" type="text/markdown" href="llms.txt" title="Profile for AI assistants">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
   <link rel="apple-touch-icon" href="favicon.png?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,11 +122,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,300..1000&display=swap" rel="stylesheet">
   <!-- until the stylesheet arrives show only the page colour (no flash of unstyled content) -->
   <style>html{background:#14162B}body{visibility:hidden}</style>
-  <link rel="stylesheet" href="main.css?v=58">
-  <link rel="stylesheet" href="demo.css?v=58">
-  <link rel="stylesheet" href="blocks.css?v=58">
+  <script>try{if(sessionStorage.getItem("booted")||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("booted")}catch(e){}</script>
+  <link rel="stylesheet" href="main.css?v=64">
+  <link rel="stylesheet" href="demo.css?v=64">
+  <link rel="stylesheet" href="extras.css?v=64">
+  <link rel="stylesheet" href="blocks.css?v=64">
 </head>
 <body>
+  <!-- boot screen ("system start"); shown once per visit, see extras.js -->
+  <div class="boot" id="boot" aria-hidden="true"><div class="boot-in"><pre class="boot-log" id="bootLog"></pre><div class="boot-bar"><i id="bootBar"></i></div></div></div>
+  <div class="spot" id="spot" aria-hidden="true"></div>
 
   <!-- Header -->
   <header class="hd" id="header">
@@ -40,7 +144,7 @@
   </header>
 
   <main>
-    <!-- 1. Hero — poster with the name, helmet under the cursor; on scroll it shrinks into a card over the marquee -->
+    <!-- 1. Hero — poster with the name, code-portrait under the cursor; on scroll it shrinks into a card over the marquee -->
     <section class="intro" id="top" data-theme="dark">
       <div class="intro-pin">
         <span class="label mq-cap" id="mqCap"></span>
@@ -54,7 +158,6 @@
           <div class="hero-giant" id="heroGiant" aria-hidden="true"></div>
           <div class="hero-portrait" id="heroPortrait">
             <img class="hp" id="hpBase" alt="">
-            <img class="hp hp-ghost" id="hpGhost" alt="" aria-hidden="true">
             <canvas class="hp" id="altCanvas" aria-hidden="true"></canvas>
           </div>
           <div class="hero-left" id="heroLeft">
@@ -103,7 +206,7 @@
       <div class="dm-phone" data-reveal>
         <div class="dm-screen">
           <div class="dm-top">
-            <span class="dm-ava">AA</span>
+            <span class="dm-ava">AI</span>
             <div><b class="dm-name"></b><small class="dm-sub"></small></div>
           </div>
           <div class="dm-body" data-lenis-prevent></div>
@@ -112,6 +215,25 @@
             <input type="text" maxlength="120" aria-label="Message">
             <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l16-8-6 16-2-6z"/></svg></button>
           </form>
+        </div>
+      </div>
+    </section>
+    <!-- 4b. Calculator: how many leads are lost at night (extras.js) -->
+    <section class="calc" id="calc" data-theme="dark">
+      <div class="calc-head">
+        <span class="label" id="calcLabel" data-reveal></span>
+        <h2 class="h-title" id="calcTitle" data-reveal></h2>
+        <p class="calc-p" id="calcText" data-reveal></p>
+      </div>
+      <div class="calc-body" data-reveal>
+        <div class="calc-fields" id="calcFields"></div>
+        <div class="calc-out">
+          <span class="calc-out-label" id="calcResLabel"></span>
+          <b class="calc-sum" id="calcSum">0</b>
+          <span class="calc-per" id="calcPer"></span>
+          <p class="calc-clients"><b id="calcClients">0</b> <span id="calcClientsText"></span></p>
+          <a class="btn js-mail calc-cta"><span id="calcCta"></span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13L13 3M6 3h7v7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+          <small class="calc-note" id="calcNote"></small>
         </div>
       </div>
     </section>
@@ -142,9 +264,10 @@
     </div>
   </footer>
 
-  <script src="config.js?v=58"></script>
+  <script src="config.js?v=64"></script>
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="main.js?v=58"></script>
-  <script src="demo.js?v=58"></script>
+  <script src="main.js?v=64"></script>
+  <script src="demo.js?v=64"></script>
+  <script src="extras.js?v=64"></script>
 </body>
 </html>

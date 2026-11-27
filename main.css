@@ -227,7 +227,7 @@ html, body { background: #14162B; }
 
 /* =========================================================
    Hero v5 — bold poster: giant name behind the portrait, orange glow,
-   helmet under the cursor; on scroll the poster shrinks into a card over the marquee
+   code-portrait under the cursor; on scroll the poster shrinks into a card over the marquee
    ========================================================= */
 .intro { position: relative; height: 260svh; background: #0B0C19; color: var(--cream); }
 .intro-pin { position: sticky; top: 0; height: 100svh; min-height: 36rem; overflow: hidden; }
